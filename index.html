@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Oct06 走廊點雲</title>
+<title>Oct06 走廊三種重建</title>
 <style>
 /* layout: full-viewport canvas, floating control card top-left, facts strip bottom; all numbers mono */
 :root{
@@ -38,24 +38,43 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
 <body>
 <canvas id="c"></canvas>
 <div class="card">
-  <h1>Oct06_r001 走廊點雲</h1>
-  <div class="sub">海大走廊 · 推車去程 16.7 m、倒車回程 17.0 m（不迴轉）· 我方離線重建</div>
-  <div class="row"><label>解析度</label>
+  <h1>Oct06_r001 走廊三種重建</h1>
+  <div class="sub">海大走廊 · 推車去程 16.7 m、倒車回程 17.0 m（不迴轉）· 同一支 48 秒錄影</div>
+  <div class="row"><label>資料</label>
+    <button id="ds-cloud" aria-pressed="true">我方點雲</button>
+    <button id="ds-sdk" aria-pressed="false">SDK 貼圖網格</button>
+    <button id="ds-gpu" aria-pressed="false">GPU 融合網格</button></div>
+  <div class="row" id="lodrow"><label>解析度</label>
     <button id="lod-2" aria-pressed="true">2 cm · 122 萬點</button>
     <button id="lod-1" aria-pressed="false">1 cm · 560 萬點（約 66 MB）</button></div>
-  <div class="row"><label>點大小</label><input id="size" type="range" min="0.5" max="4" step="0.1" value="1.6"></div>
+  <div class="row" id="sizerow"><label>點大小</label><input id="size" type="range" min="0.5" max="4" step="0.1" value="1.6"></div>
   <div class="row"><label>顯示</label>
     <button id="tog-path" aria-pressed="true">相機路徑</button>
     <button id="tog-floor" aria-pressed="false">隱藏地板</button>
     <button id="view-top">俯視</button>
     <button id="view-reset">重設視角</button></div>
-  <div class="facts">
+  <div class="facts" id="facts-cloud">
     <span>重建</span><span>offline_recon --hq --fast，取 10 m 內</span>
     <span>關鍵影格</span><span><b>162</b> 張，全部註冊</span>
     <span>平差</span><span>重投影 <b>0.94 px</b>，尺度比 0.9995</span>
     <span>疊層指標</span><span>中位 <b>1.48 cm</b> · p90 3.3 · &gt;5 cm 3.7%（7 m 版 1.19 / 2.54 / 1.3%）</span>
     <span>原始點數</span><span>2,135 萬（5 mm 體素）· 天花板約 2.0 m 高，6 m 外才入鏡</span>
     <span>耗時</span><span>抽影格 142 s · COLMAP 75 s · 重貼 70 s</span>
+  </div>
+  <div class="facts" id="facts-sdk" hidden>
+    <span>重建</span><span>zedslam Pass 1 + Pass 2，ZED SDK Spatial Mapping</span>
+    <span>位姿</span><span>SDK 即時位姿（GEN_3 + IMU + Area Memory），重定位於第 11 幀</span>
+    <span>建圖</span><span>MESH 3 cm · 距離 7 m · 融合 1444/1455 幀</span>
+    <span>網格</span><span><b>41.6 萬</b>三角形 · 單張 4096² 貼圖（網頁版縮 2048²）</span>
+    <span>QA</span><span>zedslam 自家驗收：<b>合格</b>（14 支 run 中唯一）</span>
+    <span>耗時</span><span>Pass 1 73 s · Pass 2 + 建圖 309 s</span>
+  </div>
+  <div class="facts" id="facts-gpu" hidden>
+    <span>重建</span><span>zedslam gpufuse：Pass 1 位姿 + SDK 深度 → GPU TSDF 融合</span>
+    <span>位姿</span><span>圖最佳化軌跡 / 視覺迴環（自洽度不足會退回即時位姿）</span>
+    <span>網格</span><span><b>36.7 萬</b>三角形 · 頂點色（無貼圖）</span>
+    <span>QA</span><span>zedslam GPU 驗收：不合格</span>
+    <span>備註</span><span>學生 README：比 SDK Pass 2 快 3.6–5.2 倍，但「沒有比原生更薄」</span>
   </div>
 </div>
 <div id="status">載入中…</div>
@@ -74,45 +93,25 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
   var controls = new THREE.OrbitControls(camera, canvas);
   controls.enableDamping = true; controls.dampingFactor = 0.08; controls.screenSpacePanning = true;
   var statusEl = document.getElementById('status');
-  var pointsObj = null, pathObj = null, info = null, center = new THREE.Vector3(), radius = 10;
-  var pointScale = 1.6, hideFloor = false, floorY = null, lod = '2', token = 0;
+  var modelObj = null, pathObj = null, center = new THREE.Vector3(), radius = 10, framed = false;
+  var pointScale = 1.6, hideFloor = false, floorY = null, lod = '2', kind = 'cloud', token = 0, cloudVoxel = 0.02;
 
-  function bgColor() {
-    var v = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
-    return new THREE.Color(v || '#15191b');
-  }
-  function resize() {
-    var w = window.innerWidth, h = window.innerHeight;
-    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
-  }
+  function bgColor() { var v = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(); return new THREE.Color(v || '#15191b'); }
+  function resize() { var w = window.innerWidth, h = window.innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
   window.addEventListener('resize', resize); resize();
 
   var SRGB = new Float32Array(256);
   for (var i = 0; i < 256; i++) SRGB[i] = Math.pow(i / 255, 2.2);
-  function decodeB64(b64) {
-    var bin = atob(b64.trim()), len = bin.length, bytes = new Uint8Array(len);
-    for (var b = 0; b < len; b++) bytes[b] = bin.charCodeAt(b);
-    return bytes;
+  function decodeB64(b64) { var bin = atob(b64.trim()), len = bin.length, bytes = new Uint8Array(len); for (var b = 0; b < len; b++) bytes[b] = bin.charCodeAt(b); return bytes; }
+  function dequant(q, n, mn, mx) {
+    var pos = new Float32Array(n * 3), sx = (mx[0] - mn[0]) / 65535, sy = (mx[1] - mn[1]) / 65535, sz = (mx[2] - mn[2]) / 65535;
+    for (var i = 0; i < n; i++) { pos[i * 3] = mn[0] + q[i * 3] * sx; pos[i * 3 + 1] = mn[1] + q[i * 3 + 1] * sy; pos[i * 3 + 2] = mn[2] + q[i * 3 + 2] * sz; }
+    return pos;
   }
-  function loadChunk(chunk, meta) {
-    return fetch(chunk.bin).then(function (r) { if (!r.ok) throw new Error(chunk.bin + ' 讀取失敗'); return r.text(); })
-      .then(function (b64) {
-        var bytes = decodeB64(b64), n = chunk.n;
-        var q = new Uint16Array(bytes.buffer, 0, n * 3), c = bytes.subarray(n * 6, n * 9);
-        var pos = new Float32Array(n * 3), col = new Float32Array(n * 3), mn = meta.min, mx = meta.max;
-        var sx = (mx[0] - mn[0]) / 65535, sy = (mx[1] - mn[1]) / 65535, sz = (mx[2] - mn[2]) / 65535;
-        for (var i = 0; i < n; i++) {
-          pos[i * 3] = mn[0] + q[i * 3] * sx; pos[i * 3 + 1] = mn[1] + q[i * 3 + 1] * sy; pos[i * 3 + 2] = mn[2] + q[i * 3 + 2] * sz;
-          col[i * 3] = SRGB[c[i * 3]]; col[i * 3 + 1] = SRGB[c[i * 3 + 1]]; col[i * 3 + 2] = SRGB[c[i * 3 + 2]];
-        }
-        var g = new THREE.BufferGeometry();
-        g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-        g.setAttribute('color', new THREE.BufferAttribute(col, 3));
-        return g;
-      });
-  }
-  function materialFor(meta) {
-    var m = new THREE.PointsMaterial({ size: meta.voxel_m * pointScale, sizeAttenuation: true, vertexColors: true });
+  function fetchText(name) { return fetch(name).then(function (r) { if (!r.ok) throw new Error(name + ' 讀取失敗'); return r.text(); }); }
+
+  // floor-hiding shader patch shared by points and meshes (world y below uFloorY is discarded)
+  function patchFloor(m) {
     m.onBeforeCompile = function (shader) {
       shader.uniforms.uFloorY = { value: hideFloor && floorY !== null ? floorY : -1e9 };
       shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nuniform float uFloorY; varying float vHide;')
@@ -123,81 +122,125 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
     };
     return m;
   }
-  function estimateFloor(geoms) {
-    // floor = the most populated 5 cm height bin among the lower part of the cloud, plus 12 cm
-    var hist = new Map(), mn = Infinity;
-    geoms.forEach(function (g) { var p = g.attributes.position.array; for (var i = 1; i < p.length; i += 3 * 7) { var y = p[i]; if (y < mn) mn = y; } });
-    geoms.forEach(function (g) { var p = g.attributes.position.array; for (var i = 1; i < p.length; i += 3 * 7) { var k = Math.round((p[i] - mn) / 0.05); hist.set(k, (hist.get(k) || 0) + 1); } });
+  function estimateFloor(g) {
+    var p = g.attributes.position.array, hist = new Map(), mn = Infinity;
+    for (var i = 1; i < p.length; i += 21) { if (p[i] < mn) mn = p[i]; }
+    for (var j = 1; j < p.length; j += 21) { var k = Math.round((p[j] - mn) / 0.05); hist.set(k, (hist.get(k) || 0) + 1); }
     var best = 0, bestK = 0; hist.forEach(function (v, k) { if (k < 20 && v > best) { best = v; bestK = k; } });
     return mn + bestK * 0.05 + 0.12;
   }
-  function clear() {
-    if (pointsObj) { scene.remove(pointsObj); pointsObj.children.forEach(function (c) { c.geometry.dispose(); c.material.dispose(); }); pointsObj = null; }
+  function frame(meta) {
+    if (framed) return; framed = true;
+    var box = new THREE.Box3(new THREE.Vector3().fromArray(meta.min), new THREE.Vector3().fromArray(meta.max));
+    box.getCenter(center); radius = box.getSize(new THREE.Vector3()).length() / 2; resetView();
   }
-  function load(which) {
-    var my = ++token; lod = which;
-    document.getElementById('lod-2').setAttribute('aria-pressed', String(which === '2'));
-    document.getElementById('lod-1').setAttribute('aria-pressed', String(which === '1'));
-    statusEl.hidden = false; statusEl.textContent = '載入中…';
-    clear();
+  function clearModel() {
+    if (modelObj) { scene.remove(modelObj); modelObj.traverse(function (c) { if (c.geometry) c.geometry.dispose(); if (c.material) { if (c.material.map) c.material.map.dispose(); c.material.dispose(); } }); modelObj = null; }
+  }
+  function setPressed(id, on) { document.getElementById(id).setAttribute('aria-pressed', String(on)); }
+  function showFacts() {
+    ['cloud', 'sdk', 'gpu'].forEach(function (k) { document.getElementById('facts-' + k).hidden = (k !== kind); setPressed('ds-' + k, k === kind); });
+    document.getElementById('lodrow').hidden = (kind !== 'cloud'); document.getElementById('sizerow').hidden = (kind !== 'cloud');
+  }
+
+  function loadCloud(which) {
+    var my = ++token; lod = which; setPressed('lod-2', which === '2'); setPressed('lod-1', which === '1');
+    statusEl.hidden = false; statusEl.textContent = '載入中…'; clearModel();
     var key = which === '2' ? 'oct06' : 'oct06hq';
-    fetch(key + '_cloud.json').then(function (r) { return r.json(); }).then(function (meta) {
-      if (my !== token) return;
-      if (!info) {
-        info = meta;
-        var box = new THREE.Box3(new THREE.Vector3().fromArray(meta.min), new THREE.Vector3().fromArray(meta.max));
-        box.getCenter(center); radius = box.getSize(new THREE.Vector3()).length() / 2;
-        resetView();
-        if (meta.path && meta.path.length) {
-          var pts = meta.path.map(function (p) { return new THREE.Vector3(p[0], p[1], p[2]); });
-          var pg = new THREE.BufferGeometry().setFromPoints(pts);
-          pathObj = new THREE.Line(pg, new THREE.LineBasicMaterial({ color: 0xff7a3d, linewidth: 2 }));
-          scene.add(pathObj);
-        }
+    return fetch(key + '_cloud.json').then(function (r) { return r.json(); }).then(function (meta) {
+      if (my !== token) return; frame(meta); cloudVoxel = meta.voxel_m;
+      if (!pathObj && meta.path && meta.path.length) {
+        var pts = meta.path.map(function (p) { return new THREE.Vector3(p[0], p[1], p[2]); });
+        pathObj = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xff7a3d }));
+        pathObj.visible = document.getElementById('tog-path').getAttribute('aria-pressed') === 'true'; scene.add(pathObj);
       }
-      var group = new THREE.Group(); pointsObj = group; scene.add(group);
-      var geoms = [], done = 0;
+      var group = new THREE.Group(); modelObj = group; scene.add(group); var done = 0;
       return meta.chunks.reduce(function (chain, ch) {
-        return chain.then(function () { return loadChunk(ch, meta); }).then(function (g) {
-          if (my !== token) { g.dispose(); return; }
-          geoms.push(g); done++;
-          if (floorY === null) floorY = estimateFloor([g]);
-          group.add(new THREE.Points(g, materialFor(meta)));
-          statusEl.textContent = '載入 ' + done + '/' + meta.chunks.length + ' 塊';
+        return chain.then(function () { return fetchText(ch.bin); }).then(function (b64) {
+          if (my !== token) return;
+          var bytes = decodeB64(b64), n = ch.n;
+          var pos = dequant(new Uint16Array(bytes.buffer, 0, n * 3), n, meta.min, meta.max), c = bytes.subarray(n * 6, n * 9), col = new Float32Array(n * 3);
+          for (var i = 0; i < n * 3; i++) col[i] = SRGB[c[i]];
+          var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+          if (floorY === null) floorY = estimateFloor(g);
+          group.add(new THREE.Points(g, patchFloor(new THREE.PointsMaterial({ size: meta.voxel_m * pointScale, sizeAttenuation: true, vertexColors: true }))));
+          done++; statusEl.textContent = '載入 ' + done + '/' + meta.chunks.length + ' 塊';
         });
       }, Promise.resolve()).then(function () {
         if (my !== token) return;
         statusEl.textContent = (meta.points / 10000).toFixed(0) + ' 萬點 · ' + Math.round(meta.voxel_m * 100) + ' cm';
         setTimeout(function () { if (my === token) statusEl.hidden = true; }, 2500);
       });
-    }).catch(function (e) { statusEl.textContent = '載入失敗：' + e.message; });
+    });
   }
-  function resetView() {
-    camera.position.set(center.x + radius * 0.9, center.y + radius * 0.7, center.z + radius * 0.9);
-    controls.target.copy(center); controls.update();
+
+  function loadMesh(key) {
+    var my = ++token; statusEl.hidden = false; statusEl.textContent = '載入中…'; clearModel();
+    return fetch(key + '_mesh.json').then(function (r) { return r.json(); }).then(function (meta) {
+      if (my !== token) return; frame(meta);
+      var texPromise = meta.kind === 'tex' ? new Promise(function (res, rej) {
+        new THREE.TextureLoader().load(meta.tex, function (t) { t.encoding = THREE.sRGBEncoding; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); res(t); }, undefined, function () { rej(new Error('貼圖讀取失敗')); });
+      }) : Promise.resolve(null);
+      return texPromise.then(function (tex) {
+        var group = new THREE.Group(); modelObj = group; scene.add(group); var done = 0;
+        return meta.chunks.reduce(function (chain, ch) {
+          return chain.then(function () { return fetchText(ch.bin); }).then(function (b64) {
+            if (my !== token) return;
+            var bytes = decodeB64(b64), n = ch.n;
+            var pos = dequant(new Uint16Array(bytes.buffer, 0, n * 3), n, meta.min, meta.max);
+            var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            var mat;
+            if (meta.kind === 'tex') {
+              var quv = new Uint16Array(bytes.buffer, n * 6, n * 2), uv = new Float32Array(n * 2);
+              for (var i = 0; i < n * 2; i++) uv[i] = quv[i] / 65535;
+              g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+              mat = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide });
+            } else {
+              var c = bytes.subarray(n * 6, n * 9), col = new Float32Array(n * 3);
+              for (var j = 0; j < n * 3; j++) col[j] = SRGB[c[j]];
+              g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+              mat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
+            }
+            if (floorY === null) floorY = estimateFloor(g);
+            group.add(new THREE.Mesh(g, patchFloor(mat)));
+            done++; statusEl.textContent = '載入 ' + done + '/' + meta.chunks.length + ' 塊';
+          });
+        }, Promise.resolve());
+      }).then(function () {
+        if (my !== token) return;
+        statusEl.textContent = (meta.triangles / 10000).toFixed(1) + ' 萬三角形';
+        setTimeout(function () { if (my === token) statusEl.hidden = true; }, 2500);
+      });
+    });
   }
-  function topView() {
-    camera.position.set(center.x, center.y + radius * 1.6, center.z + 0.01);
-    controls.target.copy(center); controls.update();
+
+  function load() {
+    showFacts();
+    var p = kind === 'cloud' ? loadCloud(lod) : loadMesh(kind);
+    p.catch(function (e) { statusEl.hidden = false; statusEl.textContent = '載入失敗：' + e.message; });
+    // always have the camera path available (it lives in the 2 cm cloud manifest)
+    if (!pathObj) fetch('oct06_cloud.json').then(function (r) { return r.json(); }).then(function (m) {
+      if (pathObj || !m.path) return;
+      var pts = m.path.map(function (q) { return new THREE.Vector3(q[0], q[1], q[2]); });
+      pathObj = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xff7a3d }));
+      pathObj.visible = document.getElementById('tog-path').getAttribute('aria-pressed') === 'true'; scene.add(pathObj);
+    }).catch(function () {});
   }
-  function applyFloor() {
-    if (!pointsObj) return;
-    pointsObj.children.forEach(function (p) { var sh = p.material.userData.shader; if (sh) sh.uniforms.uFloorY.value = hideFloor && floorY !== null ? floorY : -1e9; });
-  }
-  document.getElementById('lod-2').onclick = function () { load('2'); };
-  document.getElementById('lod-1').onclick = function () { load('1'); };
+  function resetView() { camera.position.set(center.x + radius * 0.9, center.y + radius * 0.7, center.z + radius * 0.9); controls.target.copy(center); controls.update(); }
+  function topView() { camera.position.set(center.x, center.y + radius * 1.6, center.z + 0.01); controls.target.copy(center); controls.update(); }
+  function applyFloor() { if (!modelObj) return; modelObj.traverse(function (o) { var sh = o.material && o.material.userData.shader; if (sh) sh.uniforms.uFloorY.value = hideFloor && floorY !== null ? floorY : -1e9; }); }
+
+  document.getElementById('ds-cloud').onclick = function () { kind = 'cloud'; load(); };
+  document.getElementById('ds-sdk').onclick = function () { kind = 'sdk'; load(); };
+  document.getElementById('ds-gpu').onclick = function () { kind = 'gpu'; load(); };
+  document.getElementById('lod-2').onclick = function () { lod = '2'; load(); };
+  document.getElementById('lod-1').onclick = function () { lod = '1'; load(); };
   document.getElementById('size').oninput = function (e) {
     pointScale = parseFloat(e.target.value);
-    if (pointsObj && info) pointsObj.children.forEach(function (p) { p.material.size = (lod === '2' ? 0.02 : 0.01) * pointScale; });
+    if (modelObj && kind === 'cloud') modelObj.traverse(function (o) { if (o.isPoints) o.material.size = cloudVoxel * pointScale; });
   };
-  document.getElementById('tog-path').onclick = function (e) {
-    var on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
-    e.currentTarget.setAttribute('aria-pressed', String(on)); if (pathObj) pathObj.visible = on;
-  };
-  document.getElementById('tog-floor').onclick = function (e) {
-    hideFloor = e.currentTarget.getAttribute('aria-pressed') !== 'true';
-    e.currentTarget.setAttribute('aria-pressed', String(hideFloor)); applyFloor();
-  };
+  document.getElementById('tog-path').onclick = function (e) { var on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', String(on)); if (pathObj) pathObj.visible = on; };
+  document.getElementById('tog-floor').onclick = function (e) { hideFloor = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', String(hideFloor)); applyFloor(); };
   document.getElementById('view-top').onclick = topView;
   document.getElementById('view-reset').onclick = resetView;
 
@@ -205,9 +248,8 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
   function paint() { scene.background = bgColor(); }
   if (mq.addEventListener) mq.addEventListener('change', paint); paint();
   new MutationObserver(paint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-
   (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-  load('2');
+  load();
 })();
 </script>
 
