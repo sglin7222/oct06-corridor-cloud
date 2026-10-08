@@ -27,8 +27,6 @@ button{font:inherit;font-size:12px;padding:4px 10px;border-radius:999px;border:1
 button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
-.facts{font-family:var(--mono);font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);margin-top:8px;padding-top:8px;display:grid;grid-template-columns:auto 1fr;gap:2px 10px}
-.facts b{color:var(--fg);font-weight:500}
 #status{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12px;font-family:var(--mono)}
 .hint{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));color:var(--muted);font-size:11px;text-align:right}
 @media (max-width:480px){.hint{display:none}.card{font-size:12px}}
@@ -55,36 +53,6 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
     <button id="view-start">錄影起點</button>
     <button id="view-top">俯視</button>
     <button id="view-reset">重設視角</button></div>
-  <div class="facts" id="facts-cloud">
-    <span>重建</span><span>offline_recon --hq --fast，取 10 m 內</span>
-    <span>關鍵影格</span><span><b>162</b> 張，全部註冊</span>
-    <span>平差</span><span>重投影 <b>0.94 px</b>，尺度比 0.9995</span>
-    <span>疊層指標</span><span>中位 <b>1.48 cm</b> · p90 3.3 · &gt;5 cm 3.7%（7 m 版 1.19 / 2.54 / 1.3%）</span>
-    <span>原始點數</span><span>2,135 萬（5 mm 體素）· 天花板約 2.0 m 高，6 m 外才入鏡</span>
-    <span>耗時</span><span>抽影格 142 s · COLMAP 75 s · 重貼 70 s</span>
-  </div>
-  <div class="facts" id="facts-tex" hidden>
-    <span>重建</span><span>offline_texrecon：162 張深度圖以 COLMAP 位姿做 TSDF 融合（2 cm 體素、截斷 12 cm、單張可見即長面）→ Marching Cubes → Taubin 平滑 → 單一網格</span>
-    <span>貼圖</span><span>mvs-texturing（Waechter 2014）：162 張左影像，MRF 逐面選圖（投影面積準則，選最正面的照片）＋全域／局部接縫勻色；視角門檻 75°→88° 才留得住地板</span>
-    <span>網格</span><span><b>115 萬</b>三角形 · 取 10 m 內 · 沒照片看到的面填淺灰；網頁版 35 張貼圖集縮排成一張 4096²</span>
-    <span>耗時</span><span>融合 16 s · 貼圖 180 s，共 198 s（COLMAP 位姿沿用點雲那次）</span>
-    <span>破洞</span><span>1 cm 版地板／玻璃會成洞（各張深度不一致、TSDF 互相抵消），2 cm 版幾乎封起來；剩下的是真的沒深度（門玻璃中央、燈具、牆頂與天花板交界窄角拍不到）</span>
-  </div>
-  <div class="facts" id="facts-texfill" hidden>
-    <span>重建</span><span>同 Raw，但每張深度圖先「補點」：沒深度的小區塊（寬 ≤1.5 m、四周在同一平面）用四周的點擬合平面補進去，顏色取原影像同一像素</span>
-    <span>補了</span><span>162 張共 <b>195 萬</b>像素（平均每張 1.2 萬）：門玻璃、燈具、地板反光處</span>
-    <span>網格</span><span><b>119 萬</b>三角形 · 37 張貼圖集縮排成一張 4096²</span>
-    <span>耗時</span><span>210 s（補點每張 0.07 s）</span>
-    <span>副作用</span><span>玻璃補成門的平面，貼的是照片裡背光的毛玻璃</span>
-  </div>
-  <div class="facts" id="facts-sdk" hidden>
-    <span>重建</span><span>zedslam Pass 1 + Pass 2，即時 Spatial Mapping</span>
-    <span>位姿</span><span>即時位姿（GEN_3 + IMU + Area Memory），重定位於第 11 幀</span>
-    <span>建圖</span><span>MESH 3 cm · 距離 7 m · 融合 1444/1455 幀</span>
-    <span>網格</span><span><b>41.6 萬</b>三角形 · 單張 4096² 貼圖（網頁版縮 2048²）</span>
-    <span>QA</span><span>zedslam 自家驗收：<b>合格</b>（14 支 run 中唯一）</span>
-    <span>耗時</span><span>Pass 1 73 s · Pass 2 + 建圖 309 s</span>
-  </div>
 </div>
 <div id="status">載入中…</div>
 <div class="hint">拖曳旋轉 · 右鍵/雙指平移 · 滾輪縮放</div>
@@ -149,7 +117,7 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
   }
   function setPressed(id, on) { document.getElementById(id).setAttribute('aria-pressed', String(on)); }
   function showFacts() {
-    ['cloud', 'tex', 'texfill', 'sdk'].forEach(function (k) { document.getElementById('facts-' + k).hidden = (k !== kind); setPressed('ds-' + k, k === kind); });
+    ['cloud', 'tex', 'texfill', 'sdk'].forEach(function (k) { setPressed('ds-' + k, k === kind); });
     document.getElementById('lodrow').hidden = (kind !== 'cloud'); document.getElementById('sizerow').hidden = (kind !== 'cloud');
   }
 
