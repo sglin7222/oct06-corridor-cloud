@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oct06 走廊點雲</title>
+<style>
+/* layout: full-viewport canvas, floating control card top-left, facts strip bottom; all numbers mono */
+:root{
+  --bg:#15191b; --panel:rgba(28,34,37,.92); --fg:#e8ecec; --muted:#9aa7a8; --line:#2f3a3d;
+  --accent:#6fc3a6; --accent-fg:#0f1f1a; --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#eef1f0; --panel:rgba(255,255,255,.94); --fg:#1c2420; --muted:#5d6b64; --line:#d6dedb; --accent:#1f6f5a; --accent-fg:#ffffff; color-scheme:light}}
+:root[data-theme="light"]{--bg:#eef1f0; --panel:rgba(255,255,255,.94); --fg:#1c2420; --muted:#5d6b64; --line:#d6dedb; --accent:#1f6f5a; --accent-fg:#ffffff; color-scheme:light}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);overflow:hidden}
+#c{position:fixed;inset:0;display:block;touch-action:none}
+.card{position:fixed;left:16px;top:calc(16px + env(safe-area-inset-top,0px));width:min(320px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;backdrop-filter:blur(6px);font-size:13px;line-height:1.5}
+.card h1{font-size:15px;margin:0 0 2px;font-weight:600}
+.card .sub{color:var(--muted);font-size:12px;margin-bottom:10px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}
+.row label{color:var(--muted);font-size:12px;min-width:56px}
+button{font:inherit;font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
+button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
+.facts{font-family:var(--mono);font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);margin-top:8px;padding-top:8px;display:grid;grid-template-columns:auto 1fr;gap:2px 10px}
+.facts b{color:var(--fg);font-weight:500}
+#status{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12px;font-family:var(--mono)}
+.hint{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));color:var(--muted);font-size:11px;text-align:right}
+@media (max-width:480px){.hint{display:none}.card{font-size:12px}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="card">
+  <h1>Oct06_r001 走廊點雲</h1>
+  <div class="sub">海大走廊 · 推車去程 16.7 m、倒車回程 17.0 m（不迴轉）· 我方離線重建</div>
+  <div class="row"><label>解析度</label>
+    <button id="lod-2" aria-pressed="true">2 cm · 122 萬點</button>
+    <button id="lod-1" aria-pressed="false">1 cm · 560 萬點（約 66 MB）</button></div>
+  <div class="row"><label>點大小</label><input id="size" type="range" min="0.5" max="4" step="0.1" value="1.6"></div>
+  <div class="row"><label>顯示</label>
+    <button id="tog-path" aria-pressed="true">相機路徑</button>
+    <button id="tog-floor" aria-pressed="false">隱藏地板</button>
+    <button id="view-top">俯視</button>
+    <button id="view-reset">重設視角</button></div>
+  <div class="facts">
+    <span>重建</span><span>offline_recon --hq --fast，取 10 m 內</span>
+    <span>關鍵影格</span><span><b>162</b> 張，全部註冊</span>
+    <span>平差</span><span>重投影 <b>0.94 px</b>，尺度比 0.9995</span>
+    <span>疊層指標</span><span>中位 <b>1.48 cm</b> · p90 3.3 · &gt;5 cm 3.7%（7 m 版 1.19 / 2.54 / 1.3%）</span>
+    <span>原始點數</span><span>2,135 萬（5 mm 體素）· 天花板約 2.0 m 高，6 m 外才入鏡</span>
+    <span>耗時</span><span>抽影格 142 s · COLMAP 75 s · 重貼 70 s</span>
+  </div>
+</div>
+<div id="status">載入中…</div>
+<div class="hint">拖曳旋轉 · 右鍵/雙指平移 · 滾輪縮放</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  var canvas = document.getElementById('c');
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(55, 1, 0.05, 500);
+  var controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true; controls.dampingFactor = 0.08; controls.screenSpacePanning = true;
+  var statusEl = document.getElementById('status');
+  var pointsObj = null, pathObj = null, info = null, center = new THREE.Vector3(), radius = 10;
+  var pointScale = 1.6, hideFloor = false, floorY = null, lod = '2', token = 0;
+
+  function bgColor() {
+    var v = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+    return new THREE.Color(v || '#15191b');
+  }
+  function resize() {
+    var w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize); resize();
+
+  var SRGB = new Float32Array(256);
+  for (var i = 0; i < 256; i++) SRGB[i] = Math.pow(i / 255, 2.2);
+  function decodeB64(b64) {
+    var bin = atob(b64.trim()), len = bin.length, bytes = new Uint8Array(len);
+    for (var b = 0; b < len; b++) bytes[b] = bin.charCodeAt(b);
+    return bytes;
+  }
+  function loadChunk(chunk, meta) {
+    return fetch(chunk.bin).then(function (r) { if (!r.ok) throw new Error(chunk.bin + ' 讀取失敗'); return r.text(); })
+      .then(function (b64) {
+        var bytes = decodeB64(b64), n = chunk.n;
+        var q = new Uint16Array(bytes.buffer, 0, n * 3), c = bytes.subarray(n * 6, n * 9);
+        var pos = new Float32Array(n * 3), col = new Float32Array(n * 3), mn = meta.min, mx = meta.max;
+        var sx = (mx[0] - mn[0]) / 65535, sy = (mx[1] - mn[1]) / 65535, sz = (mx[2] - mn[2]) / 65535;
+        for (var i = 0; i < n; i++) {
+          pos[i * 3] = mn[0] + q[i * 3] * sx; pos[i * 3 + 1] = mn[1] + q[i * 3 + 1] * sy; pos[i * 3 + 2] = mn[2] + q[i * 3 + 2] * sz;
+          col[i * 3] = SRGB[c[i * 3]]; col[i * 3 + 1] = SRGB[c[i * 3 + 1]]; col[i * 3 + 2] = SRGB[c[i * 3 + 2]];
+        }
+        var g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+        return g;
+      });
+  }
+  function materialFor(meta) {
+    var m = new THREE.PointsMaterial({ size: meta.voxel_m * pointScale, sizeAttenuation: true, vertexColors: true });
+    m.onBeforeCompile = function (shader) {
+      shader.uniforms.uFloorY = { value: hideFloor && floorY !== null ? floorY : -1e9 };
+      shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nuniform float uFloorY; varying float vHide;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvHide = (position.y < uFloorY) ? 1.0 : 0.0;');
+      shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vHide;')
+        .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (vHide > 0.5) discard;');
+      m.userData.shader = shader;
+    };
+    return m;
+  }
+  function estimateFloor(geoms) {
+    // floor = the most populated 5 cm height bin among the lower part of the cloud, plus 12 cm
+    var hist = new Map(), mn = Infinity;
+    geoms.forEach(function (g) { var p = g.attributes.position.array; for (var i = 1; i < p.length; i += 3 * 7) { var y = p[i]; if (y < mn) mn = y; } });
+    geoms.forEach(function (g) { var p = g.attributes.position.array; for (var i = 1; i < p.length; i += 3 * 7) { var k = Math.round((p[i] - mn) / 0.05); hist.set(k, (hist.get(k) || 0) + 1); } });
+    var best = 0, bestK = 0; hist.forEach(function (v, k) { if (k < 20 && v > best) { best = v; bestK = k; } });
+    return mn + bestK * 0.05 + 0.12;
+  }
+  function clear() {
+    if (pointsObj) { scene.remove(pointsObj); pointsObj.children.forEach(function (c) { c.geometry.dispose(); c.material.dispose(); }); pointsObj = null; }
+  }
+  function load(which) {
+    var my = ++token; lod = which;
+    document.getElementById('lod-2').setAttribute('aria-pressed', String(which === '2'));
+    document.getElementById('lod-1').setAttribute('aria-pressed', String(which === '1'));
+    statusEl.hidden = false; statusEl.textContent = '載入中…';
+    clear();
+    var key = which === '2' ? 'oct06' : 'oct06hq';
+    fetch(key + '_cloud.json').then(function (r) { return r.json(); }).then(function (meta) {
+      if (my !== token) return;
+      if (!info) {
+        info = meta;
+        var box = new THREE.Box3(new THREE.Vector3().fromArray(meta.min), new THREE.Vector3().fromArray(meta.max));
+        box.getCenter(center); radius = box.getSize(new THREE.Vector3()).length() / 2;
+        resetView();
+        if (meta.path && meta.path.length) {
+          var pts = meta.path.map(function (p) { return new THREE.Vector3(p[0], p[1], p[2]); });
+          var pg = new THREE.BufferGeometry().setFromPoints(pts);
+          pathObj = new THREE.Line(pg, new THREE.LineBasicMaterial({ color: 0xff7a3d, linewidth: 2 }));
+          scene.add(pathObj);
+        }
+      }
+      var group = new THREE.Group(); pointsObj = group; scene.add(group);
+      var geoms = [], done = 0;
+      return meta.chunks.reduce(function (chain, ch) {
+        return chain.then(function () { return loadChunk(ch, meta); }).then(function (g) {
+          if (my !== token) { g.dispose(); return; }
+          geoms.push(g); done++;
+          if (floorY === null) floorY = estimateFloor([g]);
+          group.add(new THREE.Points(g, materialFor(meta)));
+          statusEl.textContent = '載入 ' + done + '/' + meta.chunks.length + ' 塊';
+        });
+      }, Promise.resolve()).then(function () {
+        if (my !== token) return;
+        statusEl.textContent = (meta.points / 10000).toFixed(0) + ' 萬點 · ' + Math.round(meta.voxel_m * 100) + ' cm';
+        setTimeout(function () { if (my === token) statusEl.hidden = true; }, 2500);
+      });
+    }).catch(function (e) { statusEl.textContent = '載入失敗：' + e.message; });
+  }
+  function resetView() {
+    camera.position.set(center.x + radius * 0.9, center.y + radius * 0.7, center.z + radius * 0.9);
+    controls.target.copy(center); controls.update();
+  }
+  function topView() {
+    camera.position.set(center.x, center.y + radius * 1.6, center.z + 0.01);
+    controls.target.copy(center); controls.update();
+  }
+  function applyFloor() {
+    if (!pointsObj) return;
+    pointsObj.children.forEach(function (p) { var sh = p.material.userData.shader; if (sh) sh.uniforms.uFloorY.value = hideFloor && floorY !== null ? floorY : -1e9; });
+  }
+  document.getElementById('lod-2').onclick = function () { load('2'); };
+  document.getElementById('lod-1').onclick = function () { load('1'); };
+  document.getElementById('size').oninput = function (e) {
+    pointScale = parseFloat(e.target.value);
+    if (pointsObj && info) pointsObj.children.forEach(function (p) { p.material.size = (lod === '2' ? 0.02 : 0.01) * pointScale; });
+  };
+  document.getElementById('tog-path').onclick = function (e) {
+    var on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
+    e.currentTarget.setAttribute('aria-pressed', String(on)); if (pathObj) pathObj.visible = on;
+  };
+  document.getElementById('tog-floor').onclick = function (e) {
+    hideFloor = e.currentTarget.getAttribute('aria-pressed') !== 'true';
+    e.currentTarget.setAttribute('aria-pressed', String(hideFloor)); applyFloor();
+  };
+  document.getElementById('view-top').onclick = topView;
+  document.getElementById('view-reset').onclick = resetView;
+
+  var mq = window.matchMedia('(prefers-color-scheme: light)');
+  function paint() { scene.background = bgColor(); }
+  if (mq.addEventListener) mq.addEventListener('change', paint); paint();
+  new MutationObserver(paint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+  load('2');
+})();
+</script>
+
+</body>
+</html>
