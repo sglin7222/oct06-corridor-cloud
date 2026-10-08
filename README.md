@@ -13,6 +13,6 @@ Colour point cloud of a corridor recorded with a ZED 2i on a cart (forward 16.7 
 
 同一組 COLMAP 位姿：162 張深度圖 TSDF 融合（1 cm 體素）→ Marching Cubes → Taubin 平滑 → 簡化到 150 萬面 → mvs-texturing（texrecon）逐面選圖＋接縫勻色。
 檔案 `tex_mesh.json` / `tex_mesh_NN.txt` / `tex_tex.jpg`（84 張貼圖集縮排成一張 4096²）。
-取代先前自寫的 `ours_*`（每張照片硬切一塊，接縫條紋多），後者保留作對照。
+取代先前自寫的逐照片硬切版（接縫條紋多），舊版已移除。
 
 Textured mesh via TSDF fusion (Open3D VoxelBlockGrid, 1 cm) + mvs-texturing (Waechter et al. 2014), same COLMAP poses; 84 atlases repacked into one 4096² JPEG for the web.

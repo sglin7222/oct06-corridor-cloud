@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Oct06 走廊五種重建</title>
+<title>Oct06 走廊四種重建</title>
 <style>
 /* layout: full-viewport canvas, floating control card top-left, facts strip bottom; all numbers mono */
 :root{
@@ -38,12 +38,11 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
 <body>
 <canvas id="c"></canvas>
 <div class="card">
-  <h1>Oct06_r001 走廊五種重建</h1>
+  <h1>Oct06_r001 走廊四種重建</h1>
   <div class="sub">海大走廊 · 推車去程 16.7 m、倒車回程 17.0 m（不迴轉）· 同一支 48 秒錄影</div>
   <div class="row"><label>資料</label>
     <button id="ds-cloud" aria-pressed="true">我方點雲</button>
-    <button id="ds-tex" aria-pressed="false">正規貼圖網格（新）</button>
-    <button id="ds-ours" aria-pressed="false">舊版貼圖網格</button>
+    <button id="ds-tex" aria-pressed="false">我方貼圖網格</button>
     <button id="ds-sdk" aria-pressed="false">SDK 貼圖網格</button>
     <button id="ds-gpu" aria-pressed="false">GPU 融合網格</button></div>
   <div class="row" id="lodrow"><label>解析度</label>
@@ -69,13 +68,6 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
     <span>網格</span><span><b>150 萬</b>三角形 · 取 10 m 內 · 沒照片看到的面保留為白色；網頁版貼圖集縮成 4096²</span>
     <span>耗時</span><span>融合＋簡化 110 s · 貼圖 370 s（COLMAP 位姿沿用點雲那次）</span>
     <span>已知限制</span><span>玻璃窗／燈具沒深度的地方是洞（幾何問題）；牆頂與天花板交界窄角鏡頭拍不到</span>
-  </div>
-  <div class="facts" id="facts-ours" hidden>
-    <span>重建</span><span>offline_texmesh：同一組 COLMAP 位姿，深度圖每 16 像素連成網格，原始照片直接當貼圖</span>
-    <span>貼圖</span><span>162 張關鍵影格中每 0.5 m 取 1 張 → <b>52</b> 張，大塊歸屬＋曝光校正；網頁版 640×360／張拼成 8×7 圖集</span>
-    <span>網格</span><span><b>29.3 萬</b>三角形 · 取 10 m 內 · 補洞 922 格</span>
-    <span>耗時</span><span>6 秒（COLMAP 位姿沿用點雲那次）</span>
-    <span>已知限制</span><span>側牆斜拍 ≥60°，接縫處有條紋；地板／正面牆較好</span>
   </div>
   <div class="facts" id="facts-sdk" hidden>
     <span>重建</span><span>zedslam Pass 1 + Pass 2，ZED SDK Spatial Mapping</span>
@@ -155,7 +147,7 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
   }
   function setPressed(id, on) { document.getElementById(id).setAttribute('aria-pressed', String(on)); }
   function showFacts() {
-    ['cloud', 'tex', 'ours', 'sdk', 'gpu'].forEach(function (k) { document.getElementById('facts-' + k).hidden = (k !== kind); setPressed('ds-' + k, k === kind); });
+    ['cloud', 'tex', 'sdk', 'gpu'].forEach(function (k) { document.getElementById('facts-' + k).hidden = (k !== kind); setPressed('ds-' + k, k === kind); });
     document.getElementById('lodrow').hidden = (kind !== 'cloud'); document.getElementById('sizerow').hidden = (kind !== 'cloud');
   }
 
@@ -248,7 +240,6 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
 
   document.getElementById('ds-cloud').onclick = function () { kind = 'cloud'; load(); };
   document.getElementById('ds-tex').onclick = function () { kind = 'tex'; load(); };
-  document.getElementById('ds-ours').onclick = function () { kind = 'ours'; load(); };
   document.getElementById('ds-sdk').onclick = function () { kind = 'sdk'; load(); };
   document.getElementById('ds-gpu').onclick = function () { kind = 'gpu'; load(); };
   document.getElementById('lod-2').onclick = function () { lod = '2'; load(); };
