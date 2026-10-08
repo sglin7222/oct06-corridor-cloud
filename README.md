@@ -18,3 +18,5 @@ Colour point cloud of a corridor recorded with a ZED 2i on a cart (forward 16.7 
 Textured mesh via TSDF fusion (Open3D VoxelBlockGrid, 1 cm) + mvs-texturing (Waechter et al. 2014), same COLMAP poses; 84 atlases repacked into one 4096² JPEG for the web.
 
 `texfill_*`：補點版（每張深度圖的小破洞先用四周平面補、顏色取原影像像素，再融合貼圖）；`tex_*` 為 Raw。
+
+2026-10-08 晚：GPU 融合網格（`gpu_*`）已移除。

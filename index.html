@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Oct06 走廊五種重建</title>
+<title>Oct06 走廊四種重建</title>
 <style>
 /* layout: full-viewport canvas, floating control card top-left, facts strip bottom; all numbers mono */
 :root{
@@ -44,8 +44,7 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
     <button id="ds-cloud" aria-pressed="true">我方點雲</button>
     <button id="ds-tex" aria-pressed="false">我方貼圖網格 Raw</button>
     <button id="ds-texfill" aria-pressed="false">我方貼圖網格 補點</button>
-    <button id="ds-sdk" aria-pressed="false">SDK 貼圖網格</button>
-    <button id="ds-gpu" aria-pressed="false">GPU 融合網格</button></div>
+    <button id="ds-sdk" aria-pressed="false">SDK 貼圖網格</button></div>
   <div class="row" id="lodrow"><label>解析度</label>
     <button id="lod-2" aria-pressed="true">2 cm · 122 萬點</button>
     <button id="lod-1" aria-pressed="false">1 cm · 560 萬點（約 66 MB）</button></div>
@@ -84,13 +83,6 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
     <span>網格</span><span><b>41.6 萬</b>三角形 · 單張 4096² 貼圖（網頁版縮 2048²）</span>
     <span>QA</span><span>zedslam 自家驗收：<b>合格</b>（14 支 run 中唯一）</span>
     <span>耗時</span><span>Pass 1 73 s · Pass 2 + 建圖 309 s</span>
-  </div>
-  <div class="facts" id="facts-gpu" hidden>
-    <span>重建</span><span>zedslam gpufuse：Pass 1 位姿 + SDK 深度 → GPU TSDF 融合</span>
-    <span>位姿</span><span>圖最佳化軌跡 / 視覺迴環（自洽度不足會退回即時位姿）</span>
-    <span>網格</span><span><b>36.7 萬</b>三角形 · 頂點色（無貼圖）</span>
-    <span>QA</span><span>zedslam GPU 驗收：不合格</span>
-    <span>備註</span><span>學生 README：比 SDK Pass 2 快 3.6–5.2 倍，但「沒有比原生更薄」</span>
   </div>
 </div>
 <div id="status">載入中…</div>
@@ -155,7 +147,7 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
   }
   function setPressed(id, on) { document.getElementById(id).setAttribute('aria-pressed', String(on)); }
   function showFacts() {
-    ['cloud', 'tex', 'texfill', 'sdk', 'gpu'].forEach(function (k) { document.getElementById('facts-' + k).hidden = (k !== kind); setPressed('ds-' + k, k === kind); });
+    ['cloud', 'tex', 'texfill', 'sdk'].forEach(function (k) { document.getElementById('facts-' + k).hidden = (k !== kind); setPressed('ds-' + k, k === kind); });
     document.getElementById('lodrow').hidden = (kind !== 'cloud'); document.getElementById('sizerow').hidden = (kind !== 'cloud');
   }
 
@@ -250,7 +242,6 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
   document.getElementById('ds-tex').onclick = function () { kind = 'tex'; load(); };
   document.getElementById('ds-texfill').onclick = function () { kind = 'texfill'; load(); };
   document.getElementById('ds-sdk').onclick = function () { kind = 'sdk'; load(); };
-  document.getElementById('ds-gpu').onclick = function () { kind = 'gpu'; load(); };
   document.getElementById('lod-2').onclick = function () { lod = '2'; load(); };
   document.getElementById('lod-1').onclick = function () { lod = '1'; load(); };
   document.getElementById('size').oninput = function (e) {
