@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Oct06 走廊四種重建</title>
+<title>Oct06 走廊五種重建</title>
 <style>
 /* layout: full-viewport canvas, floating control card top-left, facts strip bottom; all numbers mono */
 :root{
@@ -42,7 +42,8 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
   <div class="sub">海大走廊 · 推車去程 16.7 m、倒車回程 17.0 m（不迴轉）· 同一支 48 秒錄影</div>
   <div class="row"><label>資料</label>
     <button id="ds-cloud" aria-pressed="true">我方點雲</button>
-    <button id="ds-tex" aria-pressed="false">我方貼圖網格</button>
+    <button id="ds-tex" aria-pressed="false">我方貼圖網格 Raw</button>
+    <button id="ds-texfill" aria-pressed="false">我方貼圖網格 補點</button>
     <button id="ds-sdk" aria-pressed="false">SDK 貼圖網格</button>
     <button id="ds-gpu" aria-pressed="false">GPU 融合網格</button></div>
   <div class="row" id="lodrow"><label>解析度</label>
@@ -68,6 +69,13 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
     <span>網格</span><span><b>115 萬</b>三角形 · 取 10 m 內 · 沒照片看到的面保留為白色；網頁版 55 張貼圖集縮排成一張 4096²</span>
     <span>耗時</span><span>融合 16 s · 貼圖 200 s，共 226 s（COLMAP 位姿沿用點雲那次）</span>
     <span>破洞</span><span>1 cm 版地板／玻璃會成洞（各張深度不一致、TSDF 互相抵消），2 cm 版幾乎封起來；剩下的是真的沒深度（門玻璃中央、燈具、牆頂與天花板交界窄角拍不到）</span>
+  </div>
+  <div class="facts" id="facts-texfill" hidden>
+    <span>重建</span><span>同 Raw，但每張深度圖先「補點」：沒深度的小區塊（寬 ≤1.5 m、四周在同一平面）用四周的點擬合平面補進去，顏色取原影像同一像素</span>
+    <span>補了</span><span>162 張共 <b>195 萬</b>像素（平均每張 1.2 萬）：門玻璃、燈具、地板反光處</span>
+    <span>網格</span><span><b>119 萬</b>三角形 · 57 張貼圖集縮排成一張 4096²</span>
+    <span>耗時</span><span>251 s（補點每張 0.07 s）</span>
+    <span>副作用</span><span>玻璃補成門的平面、貼的是照片裡的反射；偶有鄰近色塊貼錯（如門窗上的紅斑）</span>
   </div>
   <div class="facts" id="facts-sdk" hidden>
     <span>重建</span><span>zedslam Pass 1 + Pass 2，ZED SDK Spatial Mapping</span>
@@ -147,7 +155,7 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
   }
   function setPressed(id, on) { document.getElementById(id).setAttribute('aria-pressed', String(on)); }
   function showFacts() {
-    ['cloud', 'tex', 'sdk', 'gpu'].forEach(function (k) { document.getElementById('facts-' + k).hidden = (k !== kind); setPressed('ds-' + k, k === kind); });
+    ['cloud', 'tex', 'texfill', 'sdk', 'gpu'].forEach(function (k) { document.getElementById('facts-' + k).hidden = (k !== kind); setPressed('ds-' + k, k === kind); });
     document.getElementById('lodrow').hidden = (kind !== 'cloud'); document.getElementById('sizerow').hidden = (kind !== 'cloud');
   }
 
@@ -240,6 +248,7 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
 
   document.getElementById('ds-cloud').onclick = function () { kind = 'cloud'; load(); };
   document.getElementById('ds-tex').onclick = function () { kind = 'tex'; load(); };
+  document.getElementById('ds-texfill').onclick = function () { kind = 'texfill'; load(); };
   document.getElementById('ds-sdk').onclick = function () { kind = 'sdk'; load(); };
   document.getElementById('ds-gpu').onclick = function () { kind = 'gpu'; load(); };
   document.getElementById('lod-2').onclick = function () { lod = '2'; load(); };
