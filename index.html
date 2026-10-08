@@ -63,11 +63,11 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
     <span>耗時</span><span>抽影格 142 s · COLMAP 75 s · 重貼 70 s</span>
   </div>
   <div class="facts" id="facts-tex" hidden>
-    <span>重建</span><span>offline_texrecon：162 張深度圖以 COLMAP 位姿做 TSDF 融合（1 cm 體素）→ Marching Cubes → Taubin 平滑 → 簡化成單一網格</span>
-    <span>貼圖</span><span>mvs-texturing（Waechter 2014）：324 張左右影像，MRF 逐面選圖（梯度幅值準則）＋全域／局部接縫勻色；視角門檻 75°→88° 才留得住地板</span>
-    <span>網格</span><span><b>150 萬</b>三角形 · 取 10 m 內 · 沒照片看到的面保留為白色；網頁版貼圖集縮成 4096²</span>
-    <span>耗時</span><span>融合＋簡化 110 s · 貼圖 370 s（COLMAP 位姿沿用點雲那次）</span>
-    <span>已知限制</span><span>玻璃窗／燈具沒深度的地方是洞（幾何問題）；牆頂與天花板交界窄角鏡頭拍不到</span>
+    <span>重建</span><span>offline_texrecon：162 張深度圖以 COLMAP 位姿做 TSDF 融合（2 cm 體素、截斷 12 cm、單張可見即長面）→ Marching Cubes → Taubin 平滑 → 單一網格</span>
+    <span>貼圖</span><span>mvs-texturing（Waechter 2014）：162 張左影像，MRF 逐面選圖（梯度幅值準則）＋全域／局部接縫勻色；視角門檻 75°→88° 才留得住地板</span>
+    <span>網格</span><span><b>115 萬</b>三角形 · 取 10 m 內 · 沒照片看到的面保留為白色；網頁版 55 張貼圖集縮排成一張 4096²</span>
+    <span>耗時</span><span>融合 16 s · 貼圖 200 s，共 226 s（COLMAP 位姿沿用點雲那次）</span>
+    <span>破洞</span><span>1 cm 版地板／玻璃會成洞（各張深度不一致、TSDF 互相抵消），2 cm 版幾乎封起來；剩下的是真的沒深度（門玻璃中央、燈具、牆頂與天花板交界窄角拍不到）</span>
   </div>
   <div class="facts" id="facts-sdk" hidden>
     <span>重建</span><span>zedslam Pass 1 + Pass 2，ZED SDK Spatial Mapping</span>
