@@ -41,10 +41,10 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
   <h1>Oct06_r001 走廊四種重建</h1>
   <div class="sub">海大走廊 · 推車去程 16.7 m、倒車回程 17.0 m（不迴轉）· 同一支 48 秒錄影</div>
   <div class="row"><label>資料</label>
-    <button id="ds-cloud" aria-pressed="true">我方點雲</button>
-    <button id="ds-tex" aria-pressed="false">我方貼圖網格 Raw</button>
-    <button id="ds-texfill" aria-pressed="false">我方貼圖網格 補點</button>
-    <button id="ds-sdk" aria-pressed="false">SDK 貼圖網格</button></div>
+    <button id="ds-cloud" aria-pressed="true">後處理點雲</button>
+    <button id="ds-tex" aria-pressed="false">後處理貼圖網格 Raw</button>
+    <button id="ds-texfill" aria-pressed="false">後處理貼圖網格 補點</button>
+    <button id="ds-sdk" aria-pressed="false">即時資料修正貼圖網格</button></div>
   <div class="row" id="lodrow"><label>解析度</label>
     <button id="lod-2" aria-pressed="true">2 cm · 122 萬點</button>
     <button id="lod-1" aria-pressed="false">1 cm · 560 萬點（約 66 MB）</button></div>
@@ -78,8 +78,8 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
     <span>副作用</span><span>玻璃補成門的平面，貼的是照片裡背光的毛玻璃</span>
   </div>
   <div class="facts" id="facts-sdk" hidden>
-    <span>重建</span><span>zedslam Pass 1 + Pass 2，ZED SDK Spatial Mapping</span>
-    <span>位姿</span><span>SDK 即時位姿（GEN_3 + IMU + Area Memory），重定位於第 11 幀</span>
+    <span>重建</span><span>zedslam Pass 1 + Pass 2，即時 Spatial Mapping</span>
+    <span>位姿</span><span>即時位姿（GEN_3 + IMU + Area Memory），重定位於第 11 幀</span>
     <span>建圖</span><span>MESH 3 cm · 距離 7 m · 融合 1444/1455 幀</span>
     <span>網格</span><span><b>41.6 萬</b>三角形 · 單張 4096² 貼圖（網頁版縮 2048²）</span>
     <span>QA</span><span>zedslam 自家驗收：<b>合格</b>（14 支 run 中唯一）</span>
