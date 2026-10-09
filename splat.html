@@ -118,7 +118,7 @@ try {
     splatAlphaRemovalThreshold: 5,
     showLoadingUI: false,
     progressiveLoad: false,
-    onProgress: (pct, msg, stage) => { if (stage === GaussianSplats3D.LoaderStatus.Downloading) statusEl.textContent = '下載 ' + Math.round(pct) + '%（21 MB）'; else statusEl.textContent = '處理中…'; },
+    onProgress: (pct, msg, stage) => { statusEl.textContent = stage === 0 ? '下載 ' + Math.round(pct) + '%（21 MB）' : '處理中…'; },   // stage: 0 下載 1 處理 2 完成（LoaderStatus 沒匯出）
   });
   viewer.start();
   statusEl.textContent = ((meta ? meta.gaussians : 665677) / 10000).toFixed(1) + ' 萬個高斯';
