@@ -115,13 +115,21 @@ if (mq.addEventListener) mq.addEventListener('change', paint);
 new MutationObserver(paint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
 try {
-  await viewer.addSplatScene('oct06.splat', {
-    format: GaussianSplats3D.SceneFormat.Splat,
-    splatAlphaRemovalThreshold: 5,
-    showLoadingUI: false,
-    progressiveLoad: false,
-    onProgress: (pct, msg, stage) => { statusEl.textContent = stage === 0 ? '下載 ' + Math.round(pct) + '%（21 MB）' : '處理中…'; },   // stage: 0 下載 1 處理 2 完成（LoaderStatus 沒匯出）
-  });
+  // 自己下載再交給檢視器：GitHub Pages 會把 .splat 用 gzip 傳（Content-Length 是壓縮後大小），
+  // GaussianSplats3D 內建的分段下載會依 Content-Length 配置緩衝區而失敗；瀏覽器 fetch 會自動解壓，沒有這問題。
+  const total = (meta && meta.bytes) || 20656096;
+  const resp = await fetch('oct06.splat');
+  if (!resp.ok) throw new Error('oct06.splat 讀取失敗 ' + resp.status);
+  const reader = resp.body.getReader(); const parts = []; let got = 0;
+  for (;;) {
+    const { done, value } = await reader.read(); if (done) break;
+    parts.push(value); got += value.byteLength;
+    statusEl.textContent = '下載 ' + Math.min(100, Math.round(got / total * 100)) + '%（' + Math.round(total / 1e6) + ' MB）';
+  }
+  const bytes = new Uint8Array(got); let off = 0; for (const c of parts) { bytes.set(c, off); off += c.byteLength; }
+  statusEl.textContent = '處理中…';
+  const splatBuffer = await GaussianSplats3D.SplatLoader.loadFromFileData(bytes.buffer, 5, viewer.inMemoryCompressionLevel, viewer.optimizeSplatData);
+  await viewer.addSplatBuffers([splatBuffer], [{ splatAlphaRemovalThreshold: 5 }], true, false, false, false, false);
   viewer.start();
   statusEl.textContent = ((meta ? meta.gaussians : 645503) / 10000).toFixed(1) + ' 萬個高斯';
   setTimeout(() => { statusEl.hidden = true; }, 2500);

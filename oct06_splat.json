@@ -1,1 +1,1 @@
-{"gaussians": 645503, "min": [-4.511, -3.606, -23.717], "max": [6.148, 2.938, -0.863], "sh0_only": true, "source": "gs/splats.pt"}
+{"gaussians": 645503, "min": [-4.511, -3.606, -23.717], "max": [6.148, 2.938, -0.863], "sh0_only": true, "source": "gs/splats.pt", "bytes": 20656096}
