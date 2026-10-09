@@ -35,7 +35,7 @@ button:focus-visible,a.btn:focus-visible{outline:2px solid var(--accent);outline
 <body>
 <div class="card">
   <h1>Oct06_r001 走廊高斯潑濺</h1>
-  <div class="sub">同一支錄影、同一組位姿 · 162 張 → 3D Gaussian Splatting 7000 次 · 66.6 萬個高斯</div>
+  <div class="sub">同一支錄影、同一組位姿 · 162 張 → 3D Gaussian Splatting 7000 次 · 64.6 萬個高斯</div>
   <div class="row"><label>資料</label>
     <a class="btn" href="./">後處理點雲／貼圖網格</a>
     <button aria-pressed="true">後處理高斯潑濺</button></div>
@@ -94,12 +94,14 @@ const viewer = new GaussianSplats3D.Viewer({
   initialCameraPosition: sp.eye,
   initialCameraLookAt: sp.look,
   sharedMemoryForWorkers: false,      // GitHub Pages 沒有 COOP/COEP 標頭，不能用 SharedArrayBuffer
+  sceneRevealMode: GaussianSplats3D.SceneRevealMode.Instant,   // 預設會從原點（＝錄影起點）慢慢向外浮現，整條走廊一次顯示
   gpuAcceleratedSort: false,
   antialiased: true,
   splatSortDistanceMapPrecision: 16,
   focalAdjustment: 1.0,
 });
 viewer.renderer.setClearColor(bgColor(), 1);
+window.__viewer = viewer;   // 方便在主控台檢查
 
 function setCam(eye, look) { viewer.camera.position.set(eye[0], eye[1], eye[2]); viewer.controls.target.set(look[0], look[1], look[2]); viewer.controls.update(); }
 document.getElementById('view-start').onclick = () => { const p = startPose(); setCam(p.eye, p.look); };
@@ -121,7 +123,7 @@ try {
     onProgress: (pct, msg, stage) => { statusEl.textContent = stage === 0 ? '下載 ' + Math.round(pct) + '%（21 MB）' : '處理中…'; },   // stage: 0 下載 1 處理 2 完成（LoaderStatus 沒匯出）
   });
   viewer.start();
-  statusEl.textContent = ((meta ? meta.gaussians : 665677) / 10000).toFixed(1) + ' 萬個高斯';
+  statusEl.textContent = ((meta ? meta.gaussians : 645503) / 10000).toFixed(1) + ' 萬個高斯';
   setTimeout(() => { statusEl.hidden = true; }, 2500);
 } catch (e) {
   statusEl.textContent = '載入失敗：' + (e && e.message ? e.message : e);

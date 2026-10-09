@@ -24,7 +24,7 @@ Textured mesh via TSDF fusion (Open3D VoxelBlockGrid, 1 cm) + mvs-texturing (Wae
 ## 2026-10-10 新增：3D 高斯潑濺（`splat.html`）
 
 同一組 COLMAP 位姿與 162 張左影像（半解析度 640×360），gsplat 訓練 7000 次：75 萬個高斯、驗證 PSNR 31.85 dB、12 分鐘。
-匯出成 `oct06.splat`（antimatter15 格式，去掉透明度 <0.02 後 66.6 萬個、21 MB，只存基礎色不含球諧），座標與點雲相同；
+匯出成 `oct06.splat`（antimatter15 格式，去掉透明度 <0.02、尺寸 >0.5 m、離相機 >7 m 的飄浮物後 64.6 萬個、21 MB，只存基礎色不含球諧），座標與點雲相同；
 網頁用 [GaussianSplats3D](https://github.com/mkkellogg/GaussianSplats3D) 0.4.7 顯示。
 沿錄影方向看幾乎等於照片；側轉 50°、低頭看反光地板會糊，那些角度錄影時沒拍到。
 
