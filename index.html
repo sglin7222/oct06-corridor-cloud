@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Oct06 走廊五種重建</title>
+<title>Oct06 走廊四種重建</title>
 <style>
 /* layout: full-viewport canvas, floating control card top-left, facts strip bottom; all numbers mono */
 :root{
@@ -36,14 +36,13 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
 <body>
 <canvas id="c"></canvas>
 <div class="card">
-  <h1>Oct06_r001 走廊五種重建</h1>
+  <h1>Oct06_r001 走廊四種重建</h1>
   <div class="sub">海大走廊 · 推車去程 16.7 m、倒車回程 17.0 m（不迴轉）· 同一支 48 秒錄影</div>
   <div class="row"><label>資料</label>
     <button id="ds-cloud" aria-pressed="true">後處理點雲</button>
     <button id="ds-tex" aria-pressed="false">後處理貼圖網格 Raw</button>
     <button id="ds-texfill" aria-pressed="false">後處理貼圖網格 補點</button>
-    <button id="ds-sdk" aria-pressed="false">即時資料修正貼圖網格</button>
-    <a class="btn" href="splat.html">後處理高斯潑濺</a></div>
+    <button id="ds-sdk" aria-pressed="false">即時資料修正貼圖網格</button></div>
   <div class="row" id="lodrow"><label>解析度</label>
     <button id="lod-2" aria-pressed="true">2 cm · 122 萬點</button>
     <button id="lod-1" aria-pressed="false">1 cm · 560 萬點（約 66 MB）</button></div>
