@@ -157,6 +157,9 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
 .tested { color: #A8500F; }
+.src { font-size: 24px; line-height: 1.5; color: #1F6F5A; margin-top: auto; align-self: flex-start; }
+.src:focus-visible { outline: 4px solid #D9772B; outline-offset: 4px; }
+.h2row .note { margin-top: 28px; }
 .fn-head { display: flex; gap: 16px; align-items: baseline; }
 .fn-key {
   font-size: 36px;
@@ -592,6 +595,23 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p>PMG3D 事先把場域建成精確、有貼圖的 3D 圖；機器人的即時定位與導航在這份圖上進行。</p>
 </div>
 <p class="foot">PMG3D</p>
+</section>
+
+<!-- 國內外應用實例 -->
+<section class="slide content">
+<div class="h2row">
+<h2>國內外應用實例</h2>
+<p class="note">公開資料中的他人案例，非 PMG3D 實績</p>
+</div>
+<div class="grid3">
+<div class="card"><h3>BMW 英國工廠</h3><p>先建好全廠的數位分身，2023 年起四足機器人每天巡檢六趟，把熱像與 3D 掃描回填到模型。</p><a class="src" href="https://bostondynamics.com/case-studies/spot-inspires-innovation-at-bmw-group-plant/" target="_blank" rel="noopener">來源：原廠案例頁</a></div>
+<div class="card"><h3>台電萬華二次變電所</h3><p>戶外巡檢機器人「瓩力」以 3D 光達感測周邊地形，走固定路線、定點拍攝回報，可以天天巡檢。</p><a class="src" href="https://www.bnext.com.tw/article/67182/mit-robbot" target="_blank" rel="noopener">來源：數位時代報導</a></div>
+<div class="card"><h3>航太複材工廠</h3><p>四足機器人自主巡檢關鍵設備，並用搭載的 3D 掃描器產生點雲，建立廠區的 3D 模型。</p><a class="src" href="https://bostondynamics.com/case-studies/spot-at-st-engineering-mras/" target="_blank" rel="noopener">來源：原廠案例頁</a></div>
+<div class="card"><h3>CMU 隧道精密建圖</h3><p>相機里程計結合光達掃描，在全黑的隧道即時產生 3D 地圖，用於地下礦場無人載具的遙控。</p><a class="src" href="https://www.nrec.ri.cmu.edu/precision-tunnel-mapping/" target="_blank" rel="noopener">來源：CMU NREC 專案頁</a></div>
+<div class="card"><h3>成大：鋼鐵廠巡檢</h3><p>高溫、粉塵、高低落差的產線，以光達 SLAM 做自主巡檢與精確定位（2025 年研討會論文）。</p><a class="src" href="https://researchoutput.ncku.edu.tw/zh/publications/application-of-lidar-slam-technology-in-heavy-industry-inspection/" target="_blank" rel="noopener">來源：成大研究成果頁</a></div>
+<div class="card"><h3>虎科大、海大：四足機器人</h3><p>光達建圖加路徑規劃，用於工作場域的安全監測；地圖解析度 0.05 m（2026 年論文）。</p><a class="src" href="https://isprs-archives.copernicus.org/articles/XLIX-B1-2026/383/2026/" target="_blank" rel="noopener">來源：ISPRS 論文</a></div>
+</div>
+<p class="foot">應用實例</p>
 </section>
 
 <!-- 14 拍攝規範 -->
