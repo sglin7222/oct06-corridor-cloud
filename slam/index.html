@@ -160,6 +160,9 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 .src { font-size: 24px; line-height: 1.5; color: #1F6F5A; margin-top: auto; align-self: flex-start; }
 .src:focus-visible { outline: 4px solid #D9772B; outline-offset: 4px; }
 .h2row .note { margin-top: 28px; }
+.note a { color: #1F6F5A; }
+.note a:focus-visible { outline: 4px solid #D9772B; outline-offset: 4px; }
+.row4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
 .fn-head { display: flex; gap: 16px; align-items: baseline; }
 .fn-key {
   font-size: 36px;
@@ -612,6 +615,47 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <div class="card"><h3>Amazon 倉儲機器人</h3><p>2022 年發表首款完全自主的移動機器人，可在人員周圍自由移動，規劃用於出貨區搬運推車。</p><a class="src" href="https://www.therobotreport.com/a-decade-after-acquiring-kiva-amazon-unveils-its-first-amr/" target="_blank" rel="noopener">來源：The Robot Report 報導</a></div>
 </div>
 <p class="foot">應用實例</p>
+</section>
+
+<!-- 機器人大廠投入的 SLAM 技術 -->
+<section class="slide content">
+<div class="h2row">
+<h2>機器人大廠投入的 SLAM 技術</h2>
+<p class="note">以宇樹科技（四足與人形機器人）為例</p>
+</div>
+<div class="grid2">
+<div class="card"><h3>多感測器融合定位</h3><p>光達、相機、慣性感測器、衛星定位各有失效的時候，融合後互相補位；前提是先做好標定。</p></div>
+<div class="card"><h3>高程圖與地形重建</h3><p>把周圍地面記成一格一格的高度，腿式機器人才知道哪裡能踩、台階有多高。</p></div>
+<div class="card"><h3>全域與區域路徑規劃</h3><p>全域規劃在地圖上找出到目的地的路線；區域規劃依眼前的障礙即時修正。</p></div>
+<div class="card"><h3>自主導航與巡檢</h3><p>把定位、地圖、規劃串起來，讓機器人沿既定路線自己走完並回報。</p></div>
+</div>
+<div class="band mt">
+<h3>共通方法</h3>
+<p>特徵擷取與比對、濾波估計、回環偵測、圖最佳化，對應前面講的前端、後端與回環。</p>
+</div>
+<div class="spacer"></div>
+<p class="note">技術項目整理自該公司公開的光達 SLAM 職缺內容。來源：<a href="https://www.wondercv.com/xiaozhao/unitree-2026-spring-hangzhou-8889-f44269/" target="_blank" rel="noopener">WonderCV</a></p>
+<p class="foot">機器人技術</p>
+</section>
+
+<!-- 即時導航與離線建模的對照 -->
+<section class="slide content">
+<h2>即時導航與離線建模的對照</h2>
+<table>
+<thead><tr><th>項目</th><th>機器人即時導航</th><th>離線精細建模（PMG3D）</th></tr></thead>
+<tbody>
+<tr><td>目的</td><td>讓機器人邊走邊知道自己在哪裡</td><td>帶回精確、有貼圖的 3D 模型</td></tr>
+<tr><td>運算時機</td><td>即時，在機器人上運算</td><td>錄影後離線運算，約 10 分鐘到 1 小時</td></tr>
+<tr><td>主要感測器</td><td>光達為主，融合相機與慣性感測器</td><td>雙目相機</td></tr>
+<tr><td>地圖形式</td><td>高程圖、導航用的地圖</td><td>彩色點雲、貼圖網格</td></tr>
+<tr><td>重點</td><td>即時性與穩定性</td><td>精度與外觀，重疊誤差約 1 cm</td></tr>
+</tbody>
+</table>
+<div class="spacer"></div>
+<div class="band band-dk">
+<p>兩者互補：先用離線建模建好場域的 3D 圖，機器人的即時導航在這份圖上進行。</p>
+</div>
+<p class="foot">機器人技術</p>
 </section>
 
 <!-- 14 拍攝規範 -->
