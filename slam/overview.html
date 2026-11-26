@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SLAM 概論</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Space+Grotesk:wght@400..700&display=swap">
+<style>
+/* 深色 #15201C / 淺色 #F5F6F2 / 第二底色 #E6ECE7 / 主色 #1F6F5A / 輔色 #D9772B
+   字級：120 / 64 / 36 / 28 / 24 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: #0C1210;
+  overflow: hidden;
+  font-family: 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+#deck {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: center center;
+  transform: translate(-50%, -50%);
+}
+.slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  padding: 128px 128px 160px;
+  background: #F5F6F2;
+  color: #15201C;
+  overflow: hidden;
+}
+.slide.on { display: flex; }
+@media (prefers-reduced-motion: no-preference) {
+  .slide.on { animation: arrive .3s ease-out both; }
+  @keyframes arrive { from { opacity: 0; } to { opacity: 1; } }
+}
+
+h1 {
+  font-family: 'Space Grotesk', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  font-size: 120px;
+  font-weight: 700;
+  line-height: 1.12;
+}
+h2 {
+  font-family: 'Space Grotesk', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 40px;
+}
+h3 { font-size: 36px; font-weight: 700; line-height: 1.3; color: #15201C; }
+p { font-size: 28px; line-height: 1.5; color: #43514B; }
+ul { font-size: 28px; line-height: 1.5; color: #43514B; padding-left: 1.2em; }
+li { margin-bottom: 10px; }
+li:last-child { margin-bottom: 0; }
+
+/* 內容頁：頁尾與頁碼 */
+.content::after {
+  content: attr(data-n);
+  position: absolute;
+  right: 128px;
+  bottom: 64px;
+  font-size: 24px;
+  line-height: 1.4;
+  color: #5D6B64;
+  font-variant-numeric: tabular-nums;
+}
+.foot {
+  position: absolute;
+  left: 128px;
+  bottom: 64px;
+  font-size: 24px;
+  line-height: 1.4;
+  color: #5D6B64;
+}
+
+/* 文字角色 */
+.eyebrow { font-size: 24px; font-weight: 700; letter-spacing: 4px; color: #1F6F5A; }
+.lede { font-size: 36px; line-height: 1.5; color: #43514B; }
+.step { font-size: 24px; font-weight: 700; letter-spacing: 2px; color: #1F6F5A; }
+.note { font-size: 24px; color: #5D6B64; }
+.spacer { flex: 1; }
+.mt { margin-top: 32px; }
+
+/* 卡片與橫列 */
+.row { display: flex; gap: 32px; }
+.card {
+  flex: 1;
+  background: #FCFDFB;
+  border: 1px solid #D3DBD6;
+  border-radius: 12px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.band {
+  background: #E6ECE7;
+  border-radius: 12px;
+  padding: 28px 36px;
+  display: flex;
+  gap: 40px;
+  align-items: center;
+}
+.band h3 { flex: none; width: 260px; }
+.band p { flex: 1; }
+.band-dk { background: #15201C; }
+.band-dk p { font-size: 36px; color: #EEF2EC; }
+.band-dk h3 { color: #5FD0AE; }
+
+/* 流程列 */
+.flow { display: flex; gap: 16px; align-items: stretch; }
+.arr { flex: none; align-self: center; }
+
+/* 左右兩欄 */
+.cols { display: flex; gap: 64px; }
+.cols-mid { flex: 1; align-items: center; }
+.col { flex: 1; display: flex; flex-direction: column; gap: 24px; }
+.col-fig { flex: none; display: flex; flex-direction: column; }
+.block { display: flex; flex-direction: column; gap: 8px; }
+.fig text { font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif; font-size: 24px; fill: #15201C; }
+.legend { display: flex; gap: 40px; margin-top: 16px; }
+.legend .item { display: flex; gap: 12px; align-items: center; }
+.sw { width: 40px; height: 6px; }
+
+/* 定義頁 */
+.pair { display: flex; gap: 24px; align-items: stretch; }
+.pair .card { padding: 48px; }
+.pair h3 { font-size: 64px; line-height: 1.15; }
+.pair .mid {
+  flex: none;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+.plus { flex: none; align-self: center; font-size: 64px; font-weight: 700; line-height: 1; color: #1F6F5A; }
+
+/* 表格 */
+table { width: 100%; border-collapse: collapse; font-size: 28px; line-height: 1.5; color: #15201C; }
+th, td { text-align: left; padding: 14px 24px; border-bottom: 1px solid #D3DBD6; }
+thead th { background: #E6ECE7; font-weight: 700; border-bottom: none; }
+td:first-child { color: #5D6B64; width: 18%; }
+th:nth-child(2), th:nth-child(3) { width: 41%; }
+
+/* 功能格 */
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+.tested { color: #A8500F; }
+.src { font-size: 24px; line-height: 1.5; color: #1F6F5A; margin-top: auto; align-self: flex-start; }
+.src:focus-visible { outline: 4px solid #D9772B; outline-offset: 4px; }
+.h2row .note { margin-top: 28px; }
+.note a { color: #1F6F5A; }
+.note a:focus-visible { outline: 4px solid #D9772B; outline-offset: 4px; }
+.row4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.ic-head { display: flex; gap: 16px; align-items: center; }
+.ic-head svg { flex: none; }
+.ic-tx { display: flex; flex-direction: column; gap: 12px; }
+.card-fig { flex-direction: row; gap: 24px; align-items: center; }
+.card-fig .tx { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.card-fig svg { flex: none; }
+.shot-big img { height: 418px; }
+.shot-top img { object-position: 50% 0; }
+.col-fig .note { max-width: 760px; }
+.pcard .top { object-position: 50% 0; }
+.agenda .card { padding: 40px; gap: 16px; }
+.agenda .big { font-size: 64px; font-weight: 700; line-height: 1; color: #1F6F5A; }
+.fig .near { fill: #1F6F5A; }
+.pcard { padding: 0; overflow: hidden; gap: 0; }
+.pcard img { display: block; width: 100%; height: 240px; object-fit: cover; background: #E6ECE7; }
+.pcard .pb { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 24px 28px; }
+.pcard-tall img { height: 380px; }
+.pcard-mid img { height: 300px; }
+.credit { font-size: 20px; line-height: 1.5; color: #5D6B64; }
+.credit a { color: #5D6B64; }
+.credit a:focus-visible { outline: 4px solid #D9772B; outline-offset: 4px; }
+.fig .far { fill: #A8500F; }
+.fn-head { display: flex; gap: 16px; align-items: baseline; }
+.fn-key {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #1F6F5A;
+}
+
+/* 成果頁 */
+.h2row { display: flex; justify-content: space-between; align-items: flex-start; }
+.btn {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #F5F6F2;
+  background: #1F6F5A;
+  border-radius: 8px;
+  padding: 14px 28px;
+  text-decoration: none;
+  margin-top: 6px;
+}
+.btn:hover { background: #185846; }
+.btn:focus-visible { outline: 4px solid #D9772B; outline-offset: 4px; }
+.shot { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.shot img { display: block; width: 100%; height: 440px; object-fit: cover; border-radius: 8px; background: #12171C; }
+.stat { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.num {
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  color: #1F6F5A;
+}
+.rules ul { font-size: 30px; }
+.rules li { margin-bottom: 18px; }
+
+/* 深色頁 */
+.dark { background: #15201C; color: #EEF2EC; }
+.dark h1, .dark h2 { color: #EEF2EC; }
+.dark p { color: #C9D6CF; }
+.dark .eyebrow { color: #5FD0AE; }
+.dark .lede { color: #A9BDB4; }
+.cover { padding: 128px; }
+.cover .art { position: absolute; left: 1040px; top: 128px; }
+.cover .text { width: 880px; flex: 1; display: flex; flex-direction: column; gap: 28px; }
+.takes { display: flex; flex-direction: column; gap: 28px; }
+.take-row { display: flex; gap: 16px; align-items: baseline; }
+.dark .idx {
+  flex: none;
+  width: 80px;
+  font-size: 36px;
+  font-weight: 700;
+  color: #5FD0AE;
+}
+.dark .take { font-size: 36px; color: #EEF2EC; }
+.next {
+  background: #1F2E28;
+  border-radius: 12px;
+  padding: 28px 36px;
+  display: flex;
+  gap: 32px;
+  align-items: baseline;
+}
+.dark .next-k { flex: none; width: 240px; font-size: 24px; font-weight: 700; letter-spacing: 2px; color: #F0A45D; }
+.dark .next-v { flex: 1; color: #EEF2EC; }
+
+/* 主色頁 */
+.accent { background: #1F6F5A; color: #F5F6F2; padding: 128px; justify-content: center; gap: 28px; }
+.accent h1, .accent .eyebrow, .accent .lede { color: #F5F6F2; }
+.accent .sub { color: #DCEBE4; }
+
+/* 概論版 */
+.bleed { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.shade { position: absolute; inset: 0; background: rgba(21, 32, 28, .8); }
+.ov-cover .text { position: relative; z-index: 1; width: 1100px; }
+.ov-cover .btn { align-self: flex-start; }
+.panel { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.pic { border-radius: 12px; overflow: hidden; background: #FCFDFB; border: 1px solid #D3DBD6; display: flex; align-items: center; justify-content: center; }
+.pic-dk { background: #15201C; border-color: #15201C; }
+.pic svg { width: 100%; height: 100%; }
+.pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pic-top img { object-position: 50% 0; }
+.h380 { height: 380px; }
+.h360 { height: 360px; }
+.pgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.pcell { position: relative; height: 250px; border-radius: 12px; overflow: hidden; background: #E6ECE7; }
+.pcell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pcell .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 20px; background: rgba(21, 32, 28, .84); color: #EEF2EC; font-size: 26px; line-height: 1.4; }
+.pcell .cap b { color: #5FD0AE; margin-right: 10px; }
+.mosaic { display: flex; gap: 24px; height: 420px; }
+.mosaic img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; background: #12171C; }
+.mosaic .big { flex: 2; min-width: 0; }
+.mosaic .side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+.mosaic .side div { flex: 1; min-height: 0; }
+.btns { display: flex; gap: 16px; }
+.stat .num { font-size: 56px; }
+
+/* 換頁控制 */
+#bar { position: fixed; left: 0; bottom: 0; height: 4px; width: 0; background: #5FD0AE; transition: width .2s; }
+.nav { position: fixed; right: 16px; bottom: 16px; display: flex; gap: 8px; opacity: .35; transition: opacity .2s; }
+.nav:hover, .nav:focus-within { opacity: 1; }
+.nav button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #5D6B64;
+  border-radius: 8px;
+  background: #15201C;
+  color: #EEF2EC;
+  font-size: 20px;
+  cursor: pointer;
+}
+.nav button:hover { background: #1F6F5A; }
+.nav button:focus-visible { outline: 3px solid #F0A45D; outline-offset: 2px; }
+
+@media print {
+  @page { size: 1920px 1080px; margin: 0; }
+  html, body { height: auto; overflow: visible; background: none; }
+  #deck { position: static; transform: none !important; width: 1920px; height: auto; }
+  .slide { display: flex !important; position: relative; inset: auto; width: 1920px; height: 1080px; break-after: page; animation: none !important; }
+  #bar, .nav { display: none; }
+}
+</style>
+</head>
+<body>
+<main id="deck">
+
+<section class="slide dark cover ov-cover">
+<img class="bleed" src="view_mesh.png" alt="">
+<div class="shade"></div>
+<div class="text">
+<p class="eyebrow">五張看懂</p>
+<div class="spacer"></div>
+<h1>SLAM 概論</h1>
+<p class="lede">機器人怎麼知道自己在哪裡，又怎麼把環境畫成地圖</p>
+<a class="btn" href="./">看完整版簡報 →</a>
+</div>
+</section>
+
+<section class="slide content">
+<h2>SLAM 是什麼</h2>
+<p class="lede" style="margin-bottom:24px">在沒有地圖的地方，一邊算出自己的位置，一邊把環境畫成地圖。</p>
+<div class="row">
+<div class="panel"><div class="pic pic-dk h380"><svg viewBox="0 0 816 380" role="img" aria-label="一條移動路徑上的各個位置，以虛線連到周圍觀測到的環境特徵">
+<g stroke="#3A5A4F" stroke-width="2" stroke-dasharray="8 8" fill="none">
+<path d="M300 260L220 130M300 260L380 350M300 260L190 330M540 210L470 80M540 210L620 320M540 210L640 110M740 80L640 110"/>
+</g>
+<path d="M60 330L180 280L300 260L420 180L540 210L640 150L740 80" fill="none" stroke="#5FD0AE" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<g fill="#15201C" stroke="#5FD0AE" stroke-width="4">
+<circle cx="60" cy="330" r="10"/><circle cx="180" cy="280" r="10"/><circle cx="300" cy="260" r="10"/><circle cx="420" cy="180" r="10"/><circle cx="540" cy="210" r="10"/><circle cx="640" cy="150" r="10"/><circle cx="740" cy="80" r="10"/>
+</g>
+<g fill="#F0A45D">
+<rect x="212" y="122" width="16" height="16"/><rect x="372" y="342" width="16" height="16"/><rect x="182" y="322" width="16" height="16"/><rect x="462" y="72" width="16" height="16"/><rect x="612" y="312" width="16" height="16"/><rect x="632" y="102" width="16" height="16"/><rect x="100" y="150" width="16" height="16"/><rect x="730" y="250" width="16" height="16"/>
+</g>
+</svg></div><p>邊走邊記：綠點是每一刻的位置，橘點是認得的環境特徵。</p></div>
+<div class="panel"><div class="pic h380"><svg class="fig" width="800" height="480" viewBox="0 0 800 480" role="img" aria-label="繞一圈回到起點：估計路徑逐漸偏離實際路徑，終點與起點之間出現落差，以回環約束接回">
+<path d="M110 400 L690 400 L690 90 L110 90 Z" fill="none" stroke="#9AA8A1" stroke-width="4" stroke-linejoin="round"/>
+<path d="M110 400 L694 410 L716 100 L150 62 L172 330" fill="none" stroke="#D9772B" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M172 330 L110 400" fill="none" stroke="#1F6F5A" stroke-width="4" stroke-dasharray="10 8"/>
+<circle cx="110" cy="400" r="12" fill="#15201C"/>
+<circle cx="172" cy="330" r="12" fill="#D9772B"/>
+<text x="86" y="450">起點</text>
+<text x="204" y="322">估計的終點</text>
+<text x="204" y="360">與起點的落差就是累積的漂移</text>
+</svg></div><p>走越遠誤差越大；繞回原處時認出來，就能把整條路徑修正。</p></div>
+</div>
+<p class="foot">SLAM 概論</p>
+</section>
+
+<section class="slide content">
+<h2>用什麼看：相機與光達</h2>
+<div class="row">
+<div class="panel"><div class="pic h360"><svg viewBox="0 0 760 520" role="img" aria-label="左右兩台相機看同一個物體：近的物體兩條視線夾角大，遠的夾角小">
+<g stroke="#1F6F5A" stroke-width="4"><line x1="120" y1="170" x2="420" y2="270"/><line x1="120" y1="370" x2="420" y2="270"/></g>
+<g stroke="#D9772B" stroke-width="4"><line x1="120" y1="170" x2="700" y2="270"/><line x1="120" y1="370" x2="700" y2="270"/></g>
+<rect x="60" y="140" width="60" height="60" rx="10" fill="#15201C"/><rect x="60" y="340" width="60" height="60" rx="10" fill="#15201C"/>
+<circle cx="420" cy="270" r="14" fill="#1F6F5A"/><circle cx="700" cy="270" r="14" fill="#D9772B"/>
+</svg></div><p>雙目相機：像兩隻眼睛，靠左右影像的差異算距離；有顏色，近處最準。</p></div>
+<div class="panel"><div class="pic h360"><svg viewBox="0 0 760 520" role="img" aria-label="光達朝牆面發出 8 道雷射，落點之間有空隙">
+<line x1="670" y1="50" x2="670" y2="490" stroke="#15201C" stroke-width="10"/>
+<g stroke="#1F6F5A" stroke-width="4">
+<line x1="120" y1="270" x2="664" y2="169"/><line x1="120" y1="270" x2="664" y2="198"/><line x1="120" y1="270" x2="664" y2="227"/><line x1="120" y1="270" x2="664" y2="256"/>
+<line x1="120" y1="270" x2="664" y2="284"/><line x1="120" y1="270" x2="664" y2="313"/><line x1="120" y1="270" x2="664" y2="342"/><line x1="120" y1="270" x2="664" y2="371"/>
+</g>
+<g fill="#D9772B">
+<circle cx="664" cy="169" r="10"/><circle cx="664" cy="198" r="10"/><circle cx="664" cy="227" r="10"/><circle cx="664" cy="256" r="10"/>
+<circle cx="664" cy="284" r="10"/><circle cx="664" cy="313" r="10"/><circle cx="664" cy="342" r="10"/><circle cx="664" cy="371" r="10"/>
+</g>
+<rect x="40" y="230" width="80" height="80" rx="10" fill="#15201C"/>
+</svg></div><p>8 線光達：發出 8 道雷射直接量距離；不怕暗，但點稀疏、沒有顏色。</p></div>
+<div class="panel"><div class="pic pic-top h360"><img src="ph_spot_lidar.jpg" alt="藍色四足機器人，背上裝著 3D 光達"></div><p>實際上常兩種一起用：這台機器人背上就是 3D 光達。</p></div>
+</div>
+<div class="spacer"></div>
+<p class="credit">照片：<a href="https://commons.wikimedia.org/wiki/File:Boston_Dynamics_LKAB_2_Almedalen_29_juni_2023.jpg" target="_blank" rel="noopener">Tore Danielsson (WMSE)，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p>
+<p class="foot">SLAM 概論</p>
+</section>
+
+<section class="slide content">
+<h2>用在哪裡</h2>
+<div class="pgrid">
+<div class="pcell"><img src="ph_anymal_grid.jpg" alt="紅色四足機器人走在變電站的步道上"><p class="cap"><b>1</b>變電站巡檢</p></div>
+<div class="pcell"><img src="ph_anymal_offshore.jpg" alt="四足機器人在海上平台的樓梯往下走"><p class="cap"><b>2</b>海上平台巡檢</p></div>
+<div class="pcell"><img src="ph_unitree_go2.jpg" alt="灰色四足機器人站在雪地上" style="object-position:50% 25%"><p class="cap"><b>3</b>山區搜救</p></div>
+<div class="pcell"><img src="ph_amazon_robot.jpg" alt="橘色扁平的倉儲搬運機器人"><p class="cap"><b>4</b>倉儲搬運</p></div>
+<div class="pcell"><img src="ph_deere_8r.jpg" alt="綠色的大型農用曳引機"><p class="cap"><b>5</b>農機：同系列已有無人版</p></div>
+<div class="pcell"><img src="ph_spot_yellow.jpg" alt="黃色四足機器人站在林間小路上"><p class="cap"><b>6</b>工廠巡檢用的四足機器人</p></div>
+</div>
+<div class="spacer"></div>
+<p class="credit">照片取自維基共享資源，裁切顯示：1 <a href="https://commons.wikimedia.org/wiki/File:Anymal-robot-inspection-power-grid.jpg" target="_blank" rel="noopener">Cvoellmy（CC BY-SA 4.0）</a>、2 <a href="https://commons.wikimedia.org/wiki/File:AnymalX-robot-inspection-offshore.jpg" target="_blank" rel="noopener">Cvoellmy（CC BY-SA 4.0）</a>、3 <a href="https://commons.wikimedia.org/wiki/File:Unitree_Go2_of_Salvamont_front_view.jpg" target="_blank" rel="noopener">HotNews Romania（CC BY 3.0）</a>、4 <a href="https://commons.wikimedia.org/wiki/File:Amazon_warehouse_robot_2020.JPG" target="_blank" rel="noopener">Geni（CC BY-SA 4.0）</a>、5 <a href="https://commons.wikimedia.org/wiki/File:John_Deere_8R_410_agra_2022_(DSC05574).jpg" target="_blank" rel="noopener">MarcelX42（CC BY-SA 4.0）</a>、6 <a href="https://commons.wikimedia.org/wiki/File:Spot_by_Boston_Dynamics.jpg" target="_blank" rel="noopener">Jonte（CC BY-SA 4.0）</a></p>
+<p class="foot">SLAM 概論</p>
+</section>
+
+<section class="slide content">
+<div class="h2row">
+<h2>PMG3D：錄一段影片，帶回 3D 模型</h2>
+<a class="btn" href="../">線上 3D 檢視器 →</a>
+</div>
+<div class="mosaic">
+<div class="big"><img src="view_mesh.png" alt="走廊的貼圖網格：牆面、磁磚、門窗與天花板都貼上了照片"></div>
+<div class="side">
+<div><img src="view_cloud.png" alt="同一條走廊的彩色點雲"></div>
+<div><img src="tex_corridor.jpg" alt="貼圖網格：從走廊起點往內看"></div>
+</div>
+</div>
+<div class="spacer"></div>
+<div class="row">
+<div class="stat"><p class="num">1.19 cm</p><p class="note">去回程重疊誤差中位數，建模距離 7 m</p></div>
+<div class="stat"><p class="num">約 15 分鐘</p><p class="note">錄影檔到貼圖網格的離線運算時間</p></div>
+<div class="stat"><p class="num">雙目相機</p><p class="note">手持、推車，或搭載在機器人、無人車上</p></div>
+</div>
+<p class="foot">SLAM 概論</p>
+</section>
+
+</main>
+
+<div id="bar"></div>
+<div class="nav">
+<button type="button" id="prev" aria-label="上一頁">←</button>
+<button type="button" id="next" aria-label="下一頁">→</button>
+</div>
+
+<script>
+(function () {
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var bar = document.getElementById('bar');
+  var i = 0;
+
+  slides.forEach(function (s, k) { s.setAttribute('data-n', (k + 1) + ' / ' + slides.length); });
+
+  function fit() {
+    var s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    deck.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function (s, k) { s.classList.toggle('on', k === i); });
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) {}
+  }
+
+  function fromHash() {
+    var n = parseInt(location.hash.slice(1), 10);
+    return isNaN(n) ? 0 : n - 1;
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case 'PageDown': case ' ': case 'Enter':
+        e.preventDefault(); show(i + 1); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'Backspace':
+        e.preventDefault(); show(i - 1); break;
+      case 'Home': show(0); break;
+      case 'End': show(slides.length - 1); break;
+      case 'f': case 'F':
+        if (document.fullscreenElement) document.exitFullscreen();
+        else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+        break;
+    }
+  });
+
+  document.getElementById('prev').addEventListener('click', function () { show(i - 1); });
+  document.getElementById('next').addEventListener('click', function () { show(i + 1); });
+
+  deck.addEventListener('click', function (e) {
+    if (e.target.closest('a, button')) return;
+    var r = deck.getBoundingClientRect();
+    show(e.clientX - r.left < r.width * 0.3 ? i - 1 : i + 1);
+  });
+
+  var x0 = null;
+  document.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    x0 = null;
+    if (Math.abs(dx) > 50) show(dx < 0 ? i + 1 : i - 1);
+  }, { passive: true });
+
+  window.addEventListener('resize', fit);
+  window.addEventListener('hashchange', function () { show(fromHash()); });
+  fit();
+  show(fromHash());
+})();
+</script>
+</body>
+</html>
