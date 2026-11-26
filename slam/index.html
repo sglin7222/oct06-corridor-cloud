@@ -347,6 +347,25 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">原理</p>
 </section>
 
+<!-- SLAM 的應用 -->
+<section class="slide content">
+<h2>SLAM 的應用</h2>
+<div class="grid3">
+<div class="card"><p class="step">常用：單線光達、相機</p><h3>移動機器人</h3><p>倉儲搬運、清掃、送餐，在室內自己定位並規劃路徑。</p></div>
+<div class="card"><p class="step">常用：多線光達＋相機</p><h3>巡檢機器人</h3><p>沿廠區、隧道、管道巡視，把異常標在地圖上的位置。</p></div>
+<div class="card"><p class="step">常用：多線光達＋相機</p><h3>無人車</h3><p>園區接駁、物流配送到道路自動駕駛，與預先建好的地圖比對定位。</p></div>
+<div class="card"><p class="step">常用：相機＋慣性感測器</p><h3>無人機</h3><p>室內、橋下等收不到衛星訊號的地方，靠它懸停與避障。</p></div>
+<div class="card"><p class="step">常用：相機＋慣性感測器</p><h3>擴增與虛擬實境</h3><p>追蹤頭戴裝置的位置姿態，把虛擬物件固定在真實空間。</p></div>
+<div class="card"><p class="step tested">常用：光達或雙目相機</p><h3>測繪與 3D 建模</h3><p>手持、推車或背負式掃描，把現場變成點雲與模型。</p></div>
+</div>
+<div class="spacer"></div>
+<div class="band">
+<h3>PMG3D 的定位</h3>
+<p>屬於「測繪與 3D 建模」：重點不在即時導航，而在帶回一個精確、有貼圖的模型。</p>
+</div>
+<p class="foot">原理</p>
+</section>
+
 <!-- 5 視覺與光達 -->
 <section class="slide content">
 <h2>視覺 SLAM 與光達 SLAM 的比較</h2>
@@ -538,7 +557,7 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 
 <!-- 13 應用場域 -->
 <section class="slide content">
-<h2>應用場域</h2>
+<h2>PMG3D 的應用場域</h2>
 <div class="grid2">
 <div class="card"><p class="step tested">已實測</p><h3>室內走廊與通道</h3><p>來回 20 m 的走廊，去回程重疊誤差約 1 cm；牆面的標示與文字在貼圖上清楚可辨。</p></div>
 <div class="card"><p class="step">可應用</p><h3>隧道與地下通道</h3><p>建模距離可調到 15 或 20 m，涵蓋較大的斷面；現場需要足夠的照明。</p></div>
