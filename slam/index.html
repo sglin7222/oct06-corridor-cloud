@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SLAM 技術與 PMG3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Space+Grotesk:wght@400..700&display=swap">
+<style>
+/* 深色 #15201C / 淺色 #F5F6F2 / 第二底色 #E6ECE7 / 主色 #1F6F5A / 輔色 #D9772B
+   字級：120 / 64 / 36 / 28 / 24 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: #0C1210;
+  overflow: hidden;
+  font-family: 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+#deck {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: center center;
+  transform: translate(-50%, -50%);
+}
+.slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  padding: 128px 128px 160px;
+  background: #F5F6F2;
+  color: #15201C;
+  overflow: hidden;
+}
+.slide.on { display: flex; }
+@media (prefers-reduced-motion: no-preference) {
+  .slide.on { animation: arrive .3s ease-out both; }
+  @keyframes arrive { from { opacity: 0; } to { opacity: 1; } }
+}
+
+h1 {
+  font-family: 'Space Grotesk', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  font-size: 120px;
+  font-weight: 700;
+  line-height: 1.12;
+}
+h2 {
+  font-family: 'Space Grotesk', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 40px;
+}
+h3 { font-size: 36px; font-weight: 700; line-height: 1.3; color: #15201C; }
+p { font-size: 28px; line-height: 1.5; color: #43514B; }
+ul { font-size: 28px; line-height: 1.5; color: #43514B; padding-left: 1.2em; }
+li { margin-bottom: 10px; }
+li:last-child { margin-bottom: 0; }
+
+/* 內容頁：頁尾與頁碼 */
+.content::after {
+  content: attr(data-n);
+  position: absolute;
+  right: 128px;
+  bottom: 64px;
+  font-size: 24px;
+  line-height: 1.4;
+  color: #5D6B64;
+  font-variant-numeric: tabular-nums;
+}
+.foot {
+  position: absolute;
+  left: 128px;
+  bottom: 64px;
+  font-size: 24px;
+  line-height: 1.4;
+  color: #5D6B64;
+}
+
+/* 文字角色 */
+.eyebrow { font-size: 24px; font-weight: 700; letter-spacing: 4px; color: #1F6F5A; }
+.lede { font-size: 36px; line-height: 1.5; color: #43514B; }
+.step { font-size: 24px; font-weight: 700; letter-spacing: 2px; color: #1F6F5A; }
+.note { font-size: 24px; color: #5D6B64; }
+.spacer { flex: 1; }
+.mt { margin-top: 32px; }
+
+/* 卡片與橫列 */
+.row { display: flex; gap: 32px; }
+.card {
+  flex: 1;
+  background: #FCFDFB;
+  border: 1px solid #D3DBD6;
+  border-radius: 12px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.band {
+  background: #E6ECE7;
+  border-radius: 12px;
+  padding: 28px 36px;
+  display: flex;
+  gap: 40px;
+  align-items: center;
+}
+.band h3 { flex: none; width: 260px; }
+.band p { flex: 1; }
+.band-dk { background: #15201C; }
+.band-dk p { font-size: 36px; color: #EEF2EC; }
+
+/* 流程列 */
+.flow { display: flex; gap: 16px; align-items: stretch; }
+.arr { flex: none; align-self: center; }
+
+/* 左右兩欄 */
+.cols { display: flex; gap: 64px; }
+.cols-mid { flex: 1; align-items: center; }
+.col { flex: 1; display: flex; flex-direction: column; gap: 24px; }
+.col-fig { flex: none; display: flex; flex-direction: column; }
+.block { display: flex; flex-direction: column; gap: 8px; }
+.fig text { font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif; font-size: 24px; fill: #15201C; }
+.legend { display: flex; gap: 40px; margin-top: 16px; }
+.legend .item { display: flex; gap: 12px; align-items: center; }
+.sw { width: 40px; height: 6px; }
+
+/* 定義頁 */
+.pair { display: flex; gap: 24px; align-items: stretch; }
+.pair .card { padding: 48px; }
+.pair h3 { font-size: 64px; line-height: 1.15; }
+.pair .mid {
+  flex: none;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+.plus { flex: none; align-self: center; font-size: 64px; font-weight: 700; line-height: 1; color: #1F6F5A; }
+
+/* 表格 */
+table { width: 100%; border-collapse: collapse; font-size: 28px; line-height: 1.5; color: #15201C; }
+th, td { text-align: left; padding: 14px 24px; border-bottom: 1px solid #D3DBD6; }
+thead th { background: #E6ECE7; font-weight: 700; border-bottom: none; }
+td:first-child { color: #5D6B64; width: 18%; }
+th:nth-child(2), th:nth-child(3) { width: 41%; }
+
+/* 功能格 */
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.fn-head { display: flex; gap: 16px; align-items: baseline; }
+.fn-key {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #1F6F5A;
+}
+
+/* 成果頁 */
+.h2row { display: flex; justify-content: space-between; align-items: flex-start; }
+.btn {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #F5F6F2;
+  background: #1F6F5A;
+  border-radius: 8px;
+  padding: 14px 28px;
+  text-decoration: none;
+  margin-top: 6px;
+}
+.btn:hover { background: #185846; }
+.btn:focus-visible { outline: 4px solid #D9772B; outline-offset: 4px; }
+.shot { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.shot img { display: block; width: 100%; height: 440px; object-fit: cover; border-radius: 8px; background: #12171C; }
+.stat { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.num {
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  color: #1F6F5A;
+}
+.rules ul { font-size: 30px; }
+.rules li { margin-bottom: 18px; }
+
+/* 深色頁 */
+.dark { background: #15201C; color: #EEF2EC; }
+.dark h1, .dark h2 { color: #EEF2EC; }
+.dark p { color: #C9D6CF; }
+.dark .eyebrow { color: #5FD0AE; }
+.dark .lede { color: #A9BDB4; }
+.cover { padding: 128px; }
+.cover .art { position: absolute; left: 1040px; top: 128px; }
+.cover .text { width: 880px; flex: 1; display: flex; flex-direction: column; gap: 28px; }
+.takes { display: flex; flex-direction: column; gap: 28px; }
+.take-row { display: flex; gap: 16px; align-items: baseline; }
+.dark .idx {
+  flex: none;
+  width: 80px;
+  font-size: 36px;
+  font-weight: 700;
+  color: #5FD0AE;
+}
+.dark .take { font-size: 36px; color: #EEF2EC; }
+.next {
+  background: #1F2E28;
+  border-radius: 12px;
+  padding: 28px 36px;
+  display: flex;
+  gap: 32px;
+  align-items: baseline;
+}
+.dark .next-k { flex: none; width: 240px; font-size: 24px; font-weight: 700; letter-spacing: 2px; color: #F0A45D; }
+.dark .next-v { flex: 1; color: #EEF2EC; }
+
+/* 主色頁 */
+.accent { background: #1F6F5A; color: #F5F6F2; padding: 128px; justify-content: center; gap: 28px; }
+.accent h1, .accent .eyebrow, .accent .lede { color: #F5F6F2; }
+.accent .sub { color: #DCEBE4; }
+
+/* 換頁控制 */
+#bar { position: fixed; left: 0; bottom: 0; height: 4px; width: 0; background: #5FD0AE; transition: width .2s; }
+.nav { position: fixed; right: 16px; bottom: 16px; display: flex; gap: 8px; opacity: .35; transition: opacity .2s; }
+.nav:hover, .nav:focus-within { opacity: 1; }
+.nav button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #5D6B64;
+  border-radius: 8px;
+  background: #15201C;
+  color: #EEF2EC;
+  font-size: 20px;
+  cursor: pointer;
+}
+.nav button:hover { background: #1F6F5A; }
+.nav button:focus-visible { outline: 3px solid #F0A45D; outline-offset: 2px; }
+
+@media print {
+  @page { size: 1920px 1080px; margin: 0; }
+  html, body { height: auto; overflow: visible; background: none; }
+  #deck { position: static; transform: none !important; width: 1920px; height: auto; }
+  .slide { display: flex !important; position: relative; inset: auto; width: 1920px; height: 1080px; break-after: page; animation: none !important; }
+  #bar, .nav { display: none; }
+}
+</style>
+</head>
+<body>
+<main id="deck">
+
+<!-- 1 封面 -->
+<section class="slide dark cover">
+<svg class="art" width="752" height="824" viewBox="0 0 752 824" role="img" aria-label="示意圖：移動路徑上的各個位置，以虛線連到周圍觀測到的地圖點">
+<g stroke="#3A5A4F" stroke-width="2" stroke-dasharray="8 8" fill="none">
+<path d="M190 470 L40 520"/><path d="M190 470 L330 560"/><path d="M190 470 L100 330"/>
+<path d="M450 320 L420 180"/><path d="M450 320 L520 480"/><path d="M450 320 L640 360"/>
+<path d="M560 230 L690 200"/><path d="M560 230 L420 180"/>
+</g>
+<path d="M80 760 L170 620 L190 470 L300 360 L450 320 L560 230 L620 110" fill="none" stroke="#5FD0AE" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<g fill="#15201C" stroke="#5FD0AE" stroke-width="4">
+<circle cx="80" cy="760" r="10"/><circle cx="170" cy="620" r="10"/><circle cx="190" cy="470" r="10"/><circle cx="300" cy="360" r="10"/><circle cx="450" cy="320" r="10"/><circle cx="560" cy="230" r="10"/><circle cx="620" cy="110" r="10"/>
+</g>
+<g fill="#F0A45D">
+<rect x="32" y="512" width="16" height="16"/><rect x="322" y="552" width="16" height="16"/><rect x="92" y="322" width="16" height="16"/><rect x="412" y="172" width="16" height="16"/><rect x="512" y="472" width="16" height="16"/><rect x="632" y="352" width="16" height="16"/><rect x="682" y="192" width="16" height="16"/><rect x="242" y="222" width="16" height="16"/>
+</g>
+</svg>
+<div class="text">
+<p class="eyebrow">技術簡報</p>
+<div class="spacer"></div>
+<h1>SLAM<br>同步定位與建圖</h1>
+<p class="lede">從原理、感測器選擇，到 PMG3D 三維建模系統</p>
+</div>
+</section>
+
+<!-- 2 定義 -->
+<section class="slide content">
+<h2>SLAM 的定義</h2>
+<p class="lede">在沒有地圖的環境裡，一邊估計自己的位置姿態，一邊把周圍環境建成地圖。</p>
+<div class="spacer"></div>
+<div class="pair">
+<div class="card"><p class="step">LOCALIZATION</p><h3>定位</h3><p>我在哪裡、朝向哪個方向。</p></div>
+<div class="mid">
+<svg width="140" height="24" viewBox="0 0 140 24" aria-hidden="true"><path d="M4 12H136M16 4L4 12l12 8M124 4l12 8-12 8" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<p class="note">互相依賴</p>
+</div>
+<div class="card"><p class="step">MAPPING</p><h3>建圖</h3><p>周圍環境的形狀與位置。</p></div>
+</div>
+<p class="mt">沒有地圖就無法定位，沒有定位就拼不出地圖，所以兩件事必須同時解。</p>
+<p class="foot">原理</p>
+</section>
+
+<!-- 3 四個環節 -->
+<section class="slide content">
+<h2>SLAM 的四個環節</h2>
+<p class="lede">不論用哪一種感測器，SLAM 系統大致都分成這四步。</p>
+<div class="spacer"></div>
+<div class="flow">
+<div class="card"><p class="step">01</p><h3>感測</h3><p>相機、光達、慣性感測器取得原始資料</p></div>
+<svg class="arr" width="56" height="24" viewBox="0 0 56 24" aria-hidden="true"><path d="M2 12H52M40 4l12 8-12 8" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div class="card"><p class="step">02</p><h3>前端：里程計</h3><p>比對相鄰兩刻的資料，估計移動了多少</p></div>
+<svg class="arr" width="56" height="24" viewBox="0 0 56 24" aria-hidden="true"><path d="M2 12H52M40 4l12 8-12 8" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div class="card"><p class="step">03</p><h3>後端：最佳化</h3><p>所有時刻一起調整，把誤差平均攤開</p></div>
+<svg class="arr" width="56" height="24" viewBox="0 0 56 24" aria-hidden="true"><path d="M2 12H52M40 4l12 8-12 8" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div class="card"><p class="step">04</p><h3>建圖</h3><p>用調整後的位置姿態，把資料拼成點雲或網格</p></div>
+</div>
+<div class="band mt">
+<h3>回環偵測</h3>
+<p>認出回到來過的地方，給後端一條「頭尾相接」的約束；這是消除累積誤差的關鍵。</p>
+</div>
+<p class="foot">原理</p>
+</section>
+
+<!-- 4 漂移與回環 -->
+<section class="slide content">
+<h2>誤差累積與回環校正</h2>
+<div class="cols cols-mid">
+<div class="col-fig">
+<svg class="fig" width="800" height="480" viewBox="0 0 800 480" role="img" aria-label="繞一圈回到起點：估計路徑逐漸偏離實際路徑，終點與起點之間出現落差，以回環約束接回">
+<path d="M110 400 L690 400 L690 90 L110 90 Z" fill="none" stroke="#9AA8A1" stroke-width="4" stroke-linejoin="round"/>
+<path d="M110 400 L694 410 L716 100 L150 62 L172 330" fill="none" stroke="#D9772B" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M172 330 L110 400" fill="none" stroke="#1F6F5A" stroke-width="4" stroke-dasharray="10 8"/>
+<circle cx="110" cy="400" r="12" fill="#15201C"/>
+<circle cx="172" cy="330" r="12" fill="#D9772B"/>
+<text x="86" y="450">起點</text>
+<text x="204" y="322">估計的終點</text>
+<text x="204" y="360">與起點的落差就是累積的漂移</text>
+</svg>
+<div class="legend">
+<div class="item"><div class="sw" style="background:#9AA8A1"></div><p class="note">實際路徑</p></div>
+<div class="item"><div class="sw" style="background:#D9772B"></div><p class="note">估計路徑</p></div>
+<div class="item"><div class="sw" style="background:#1F6F5A"></div><p class="note">回環約束（虛線）</p></div>
+</div>
+</div>
+<div class="col" style="gap:36px">
+<div class="block"><h3>漂移</h3><p>里程計每一步都有小誤差，走得越遠累積越多。</p></div>
+<div class="block"><h3>回環</h3><p>認出回到同一個地方，就知道路徑的頭尾應該接起來。</p></div>
+<div class="block"><h3>最佳化</h3><p>把落差攤回整條路徑，同一面牆才不會在地圖上疊成兩層。</p></div>
+</div>
+</div>
+<p class="foot">原理</p>
+</section>
+
+<!-- 5 視覺與光達 -->
+<section class="slide content">
+<h2>視覺 SLAM 與光達 SLAM 的比較</h2>
+<table>
+<thead><tr><th>項目</th><th>雙目相機（視覺）</th><th>多線光達</th></tr></thead>
+<tbody>
+<tr><td>測距方式</td><td>左右影像的視差換算距離</td><td>雷射飛行時間直接測距</td></tr>
+<tr><td>距離誤差</td><td>隨距離平方增加，近處最準</td><td>遠近大致相同</td></tr>
+<tr><td>顏色與紋理</td><td>有，可直接貼圖</td><td>無，只有反射強度</td></tr>
+<tr><td>光線條件</td><td>需要照明與表面紋理</td><td>全黑也能運作</td></tr>
+<tr><td>資料密度</td><td>每張影像都是密集深度</td><td>依線數而定，線數少則稀疏</td></tr>
+<tr><td>常見弱點</td><td>白牆、反光、玻璃</td><td>長直走廊形狀重複、玻璃</td></tr>
+</tbody>
+</table>
+<div class="spacer"></div>
+<div class="band">
+<p>沒有哪一種感測器全贏：選擇取決於現場的光線、距離，以及成果是否需要顏色。</p>
+</div>
+<p class="foot">感測器</p>
+</section>
+
+<!-- 6 8 線光達 -->
+<section class="slide content">
+<h2>8 線光達的特性</h2>
+<div class="cols cols-mid">
+<div class="col-fig">
+<svg class="fig" width="760" height="520" viewBox="0 0 760 520" role="img" aria-label="側視圖：光達朝牆面發出 8 道雷射，落點之間有空隙，視角以外的牆面掃不到">
+<line x1="670" y1="50" x2="670" y2="490" stroke="#15201C" stroke-width="8"/>
+<g stroke="#1F6F5A" stroke-width="2.5">
+<line x1="120" y1="270" x2="664" y2="169"/><line x1="120" y1="270" x2="664" y2="198"/><line x1="120" y1="270" x2="664" y2="227"/><line x1="120" y1="270" x2="664" y2="256"/>
+<line x1="120" y1="270" x2="664" y2="284"/><line x1="120" y1="270" x2="664" y2="313"/><line x1="120" y1="270" x2="664" y2="342"/><line x1="120" y1="270" x2="664" y2="371"/>
+</g>
+<g fill="#D9772B">
+<circle cx="664" cy="169" r="7"/><circle cx="664" cy="198" r="7"/><circle cx="664" cy="227" r="7"/><circle cx="664" cy="256" r="7"/>
+<circle cx="664" cy="284" r="7"/><circle cx="664" cy="313" r="7"/><circle cx="664" cy="342" r="7"/><circle cx="664" cy="371" r="7"/>
+</g>
+<rect x="50" y="235" width="70" height="70" rx="8" fill="#15201C"/>
+<text x="61" y="344">光達</text>
+<text x="690" y="78">牆面</text>
+<text x="270" y="176">8 條掃描線</text>
+<text x="650" y="110" text-anchor="end">視角外，掃不到</text>
+<text x="650" y="440" text-anchor="end">落點空隙隨距離變大</text>
+</svg>
+<p class="note" style="margin-top:16px">線數是垂直方向的雷射數量；本體旋轉一圈，得到 8 條環狀掃描線。</p>
+</div>
+<div class="col">
+<div class="card">
+<h3>優點</h3>
+<ul>
+<li>雷射直接測距，遠近誤差大致相同</li>
+<li>不需要照明，全黑環境也能運作</li>
+<li>資料量小，即時運算負擔低</li>
+</ul>
+</div>
+<div class="card">
+<h3>限制</h3>
+<ul>
+<li>線與線之間有空隙，距離越遠空隙越大</li>
+<li>垂直視角窄，單圈掃不到完整的牆面與天花板</li>
+<li>沒有顏色，無法直接貼圖</li>
+</ul>
+</div>
+</div>
+</div>
+<p class="foot">感測器</p>
+</section>
+
+<!-- 7 8 線光達 SLAM -->
+<section class="slide content">
+<h2>8 線光達 SLAM 的流程</h2>
+<div class="flow">
+<div class="card"><p class="step">01</p><h3>運動補償</h3><p>掃一圈的期間本體在動，用慣性感測器把各點拉回同一時刻</p></div>
+<svg class="arr" width="56" height="24" viewBox="0 0 56 24" aria-hidden="true"><path d="M2 12H52M40 4l12 8-12 8" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div class="card"><p class="step">02</p><h3>特徵擷取</h3><p>從掃描線上找出邊線與平面上的點</p></div>
+<svg class="arr" width="56" height="24" viewBox="0 0 56 24" aria-hidden="true"><path d="M2 12H52M40 4l12 8-12 8" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div class="card"><p class="step">03</p><h3>掃描配準</h3><p>把新的一圈對到已累積的地圖，求出位置姿態</p></div>
+<svg class="arr" width="56" height="24" viewBox="0 0 56 24" aria-hidden="true"><path d="M2 12H52M40 4l12 8-12 8" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div class="card"><p class="step">04</p><h3>地圖更新</h3><p>加入新的點，遇到回環時整體校正</p></div>
+</div>
+<div class="spacer"></div>
+<p class="step" style="margin-bottom:16px">線數少的時候要注意</p>
+<div class="row">
+<div class="band" style="flex:1; flex-direction:column; align-items:flex-start; gap:8px"><h3 style="width:auto">緊密結合慣性感測器</h3><p>垂直方向的約束少，俯仰與高度容易飄，要靠慣性量測穩住。</p></div>
+<div class="band" style="flex:1; flex-direction:column; align-items:flex-start; gap:8px"><h3 style="width:auto">靠移動把空間掃滿</h3><p>單圈很稀疏，邊走邊累積多圈，才會成為可用的地圖。</p></div>
+<div class="band" style="flex:1; flex-direction:column; align-items:flex-start; gap:8px"><h3 style="width:auto">留意長直走廊</h3><p>沿走廊方向缺少可對齊的形狀，前後位置容易滑動。</p></div>
+</div>
+<p class="note" style="margin-top:20px">公開的代表作法：LOAM、LIO-SAM、FAST-LIO</p>
+<p class="foot">感測器</p>
+</section>
+
+<!-- 8 互補 -->
+<section class="slide content">
+<h2>光達與相機的互補</h2>
+<p class="lede">兩種感測器的弱點剛好錯開，所以常見的做法是一起用。</p>
+<div class="spacer"></div>
+<div class="row">
+<div class="card">
+<p class="step">8 線光達</p>
+<h3>骨架：位置姿態與尺度</h3>
+<ul>
+<li>測距誤差不隨距離放大</li>
+<li>不受光線與表面紋理影響</li>
+<li>長距離的位置姿態比較穩定</li>
+</ul>
+</div>
+<p class="plus">＋</p>
+<div class="card">
+<p class="step">雙目相機</p>
+<h3>表面：密度與顏色</h3>
+<ul>
+<li>每張影像都有密集深度</li>
+<li>有顏色與紋理，可直接貼圖</li>
+<li>近距離的細節完整</li>
+</ul>
+</div>
+</div>
+<div class="band band-dk mt">
+<p>融合後的分工：光達穩住位置姿態，影像補滿表面與顏色。</p>
+</div>
+<p class="foot">感測器</p>
+</section>
+
+<!-- 9 產品開場 -->
+<section class="slide accent">
+<p class="eyebrow">產品</p>
+<h1>PMG3D</h1>
+<p class="lede">錄一段影片，帶回一個有照片貼圖的 3D 模型。</p>
+<p class="sub">雙目相機＋嵌入式運算主機，錄影與重建在同一台機器完成。</p>
+</section>
+
+<!-- 10 作業流程 -->
+<section class="slide content">
+<h2>PMG3D 的作業流程</h2>
+<p class="lede">現場只管錄影，耗時的最佳化留到離線做。</p>
+<div class="spacer"></div>
+<div class="flow">
+<div class="card"><p class="step">01 · 感測</p><h3>現場錄影</h3><p>推車或手持，雙目相機錄下原始影像</p></div>
+<svg class="arr" width="56" height="24" viewBox="0 0 56 24" aria-hidden="true"><path d="M2 12H52M40 4l12 8-12 8" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div class="card"><p class="step">02 · 後端最佳化</p><h3>位置姿態平差</h3><p>整段錄影一起最佳化，消除去回程的疊層</p></div>
+<svg class="arr" width="56" height="24" viewBox="0 0 56 24" aria-hidden="true"><path d="M2 12H52M40 4l12 8-12 8" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div class="card"><p class="step">03 · 建圖</p><h3>深度融合</h3><p>各張深度圖依平差結果，融合成點雲或網格</p></div>
+<svg class="arr" width="56" height="24" viewBox="0 0 56 24" aria-hidden="true"><path d="M2 12H52M40 4l12 8-12 8" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div class="card"><p class="step">04 · 成果</p><h3>貼圖與檢視</h3><p>用原始照片貼圖，在 3D 視窗直接檢視</p></div>
+</div>
+<div class="band mt">
+<h3>為什麼離線</h3>
+<p>即時追蹤不會回頭修正，來回走廊容易疊成兩層；離線平差把整段路徑一起調整，兩層合而為一。</p>
+</div>
+<p class="foot">PMG3D</p>
+</section>
+
+<!-- 11 六個功能 -->
+<section class="slide content">
+<h2>六個功能</h2>
+<div class="grid3">
+<div class="card"><div class="fn-head"><p class="fn-key">1</p><h3>現場錄影</h3></div><p>錄下原始影像，供離線功能使用。</p></div>
+<div class="card"><div class="fn-head"><p class="fn-key">2</p><h3>即時建圖</h3></div><p>邊走邊建點雲，現場確認涵蓋範圍。</p></div>
+<div class="card"><div class="fn-head"><p class="fn-key">3</p><h3>離線貼圖網格</h3></div><p>平差到貼圖一次跑完，約 15 分鐘。</p></div>
+<div class="card"><div class="fn-head"><p class="fn-key">4</p><h3>離線高密度點雲</h3></div><p>5 mm 彩色點雲，約 1 小時。</p></div>
+<div class="card"><div class="fn-head"><p class="fn-key">5</p><h3>離線快速點雲</h3></div><p>約 10 分鐘，精度幾乎相同。</p></div>
+<div class="card"><div class="fn-head"><p class="fn-key">6</p><h3>成果檢視</h3></div><p>在 3D 視窗檢視點雲或貼圖網格。</p></div>
+</div>
+<div class="spacer"></div>
+<div class="band">
+<h3>建模距離</h3>
+<p>可選 4／7／10／15／20 m，預設 10 m；距離越遠涵蓋越大，遠處的雜訊也越多。</p>
+</div>
+<p class="foot">PMG3D</p>
+</section>
+
+<!-- 12 實測成果 -->
+<section class="slide content">
+<div class="h2row">
+<h2>走廊實測成果</h2>
+<a class="btn" href="../">開啟線上 3D 檢視器 →</a>
+</div>
+<div class="row">
+<div class="shot"><img src="view_mesh.png" alt="走廊的貼圖網格：牆面、磁磚、門窗與天花板都貼上了照片"><p class="note">貼圖網格</p></div>
+<div class="shot"><img src="view_cloud.png" alt="同一條走廊的彩色點雲"><p class="note">彩色點雲</p></div>
+</div>
+<div class="spacer"></div>
+<div class="row">
+<div class="stat"><p class="num">1.19 cm</p><p class="note">去回程重疊誤差中位數，建模距離 7 m</p></div>
+<div class="stat"><p class="num">1.48 cm</p><p class="note">同一段走廊，建模距離 10 m</p></div>
+<div class="stat"><p class="num">0.74 cm</p><p class="note">另一段走廊來回 20 m 的重疊誤差</p></div>
+</div>
+<p class="foot">PMG3D</p>
+</section>
+
+<!-- 13 拍攝規範 -->
+<section class="slide content rules">
+<h2>拍攝規範與已知限制</h2>
+<p class="lede">成果好壞主要取決於拍法。</p>
+<div class="spacer"></div>
+<div class="row">
+<div class="card" style="padding:40px; gap:20px">
+<h3>建議拍法</h3>
+<ul>
+<li>慢速直線前進，每秒約 0.3 至 0.5 m</li>
+<li>走廊來回時倒車回程，不要迴轉</li>
+<li>要拍到天花板，建模距離設 10 m 以上</li>
+</ul>
+</div>
+<div class="card" style="padding:40px; gap:20px">
+<h3>已知限制</h3>
+<ul>
+<li>玻璃、強反光地板、燈具量不到距離，成果會有洞</li>
+<li>鏡頭視角窄，牆頂與天花板交界要側向多拍一趟</li>
+<li>建模距離超過 10 m，遠處雜訊明顯增加</li>
+</ul>
+</div>
+</div>
+<div class="spacer"></div>
+<p class="foot">PMG3D</p>
+</section>
+
+<!-- 14 總結 -->
+<section class="slide dark" style="padding:128px">
+<h2>總結</h2>
+<div class="takes">
+<div class="take-row"><p class="idx">01</p><p class="take">SLAM 同時解定位與建圖，累積的誤差靠回環與最佳化收斂。</p></div>
+<div class="take-row"><p class="idx">02</p><p class="take">相機給密集的表面與顏色，8 線光達給不受光線影響的距離。</p></div>
+<div class="take-row"><p class="idx">03</p><p class="take">PMG3D 以離線平差，把走廊去回程的重疊誤差壓到 1 cm 上下。</p></div>
+</div>
+<div class="spacer"></div>
+<div class="next">
+<p class="next-k">延伸方向（評估中）</p>
+<p class="next-v">搭配 8 線光達：長距離的位置姿態由光達穩住，影像負責表面與貼圖。</p>
+</div>
+</section>
+
+</main>
+
+<div id="bar"></div>
+<div class="nav">
+<button type="button" id="prev" aria-label="上一頁">←</button>
+<button type="button" id="next" aria-label="下一頁">→</button>
+</div>
+
+<script>
+(function () {
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var bar = document.getElementById('bar');
+  var i = 0;
+
+  slides.forEach(function (s, k) { s.setAttribute('data-n', (k + 1) + ' / ' + slides.length); });
+
+  function fit() {
+    var s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    deck.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function (s, k) { s.classList.toggle('on', k === i); });
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) {}
+  }
+
+  function fromHash() {
+    var n = parseInt(location.hash.slice(1), 10);
+    return isNaN(n) ? 0 : n - 1;
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case 'PageDown': case ' ': case 'Enter':
+        e.preventDefault(); show(i + 1); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'Backspace':
+        e.preventDefault(); show(i - 1); break;
+      case 'Home': show(0); break;
+      case 'End': show(slides.length - 1); break;
+      case 'f': case 'F':
+        if (document.fullscreenElement) document.exitFullscreen();
+        else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+        break;
+    }
+  });
+
+  document.getElementById('prev').addEventListener('click', function () { show(i - 1); });
+  document.getElementById('next').addEventListener('click', function () { show(i + 1); });
+
+  deck.addEventListener('click', function (e) {
+    if (e.target.closest('a, button')) return;
+    var r = deck.getBoundingClientRect();
+    show(e.clientX - r.left < r.width * 0.3 ? i - 1 : i + 1);
+  });
+
+  var x0 = null;
+  document.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    x0 = null;
+    if (Math.abs(dx) > 50) show(dx < 0 ? i + 1 : i - 1);
+  }, { passive: true });
+
+  window.addEventListener('resize', fit);
+  window.addEventListener('hashchange', function () { show(fromHash()); });
+  fit();
+  show(fromHash());
+})();
+</script>
+</body>
+</html>
