@@ -180,6 +180,7 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 .pcard img { display: block; width: 100%; height: 240px; object-fit: cover; background: #E6ECE7; }
 .pcard .pb { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 24px 28px; }
 .pcard-tall img { height: 380px; }
+.pcard-mid img { height: 300px; }
 .credit { font-size: 20px; line-height: 1.5; color: #5D6B64; }
 .credit a { color: #5D6B64; }
 .credit a:focus-visible { outline: 4px solid #D9772B; outline-offset: 4px; }
@@ -573,26 +574,38 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 
 <section class="slide content">
 <div class="h2row">
-<h2>國外大廠應用實例：工廠巡檢</h2>
+<h2>已導入的大廠實例：工廠巡檢</h2>
 <p class="note">公開資料中的他人案例，非 PMG3D 實績</p>
 </div>
 <div class="grid3">
 <div class="card pcard"><img class="top" src="ph_spot_lidar.jpg" alt="藍色四足機器人，背上裝著 3D 光達"><div class="pb"><h3>BMW 英國工廠</h3><p>先建好全廠的數位分身，2023 年起四足機器人每天巡檢六趟，把熱像與 3D 掃描回填到模型。</p><a class="src" href="https://bostondynamics.com/case-studies/spot-inspires-innovation-at-bmw-group-plant/" target="_blank" rel="noopener">來源：原廠案例頁</a><p class="credit">同型機器人，非該廠現場。圖：<a href="https://commons.wikimedia.org/wiki/File:Boston_Dynamics_LKAB_2_Almedalen_29_juni_2023.jpg" target="_blank" rel="noopener">Tore Danielsson (WMSE)，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
-<div class="card pcard"><img src="ph_anymal_grid.jpg" alt="紅色四足機器人走在變電站的步道上"><div class="pb"><h3>BASF 德國化工廠</h3><p>2021 年測試：先用廠區的 3D 模型規劃並模擬巡檢任務，四足機器人到現場再依這份模型定位。</p><a class="src" href="https://www.anybotics.com/anymal-case-basf-chemical-plant/" target="_blank" rel="noopener">來源：原廠案例頁</a><p class="credit">同系列機器人，攝於變電站。圖：<a href="https://commons.wikimedia.org/wiki/File:Anymal-robot-inspection-power-grid.jpg" target="_blank" rel="noopener">Cvoellmy，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
 <div class="card pcard"><img src="ph_spot_yellow.jpg" alt="黃色四足機器人站在林間小路上"><div class="pb"><h3>百威英博比利時酒廠</h3><p>2022 年試用、2023 年導入，四足機器人自主巡檢熱像與聲音；原廠稱半年找出近 150 處異常。</p><a class="src" href="https://bostondynamics.com/case-studies/energy-savings-predictive-maintenance-at-ab-inbevs-largest-european-brewery/" target="_blank" rel="noopener">來源：原廠案例頁</a><p class="credit">同型機器人，非該廠現場。圖：<a href="https://commons.wikimedia.org/wiki/File:Spot_by_Boston_Dynamics.jpg" target="_blank" rel="noopener">Jonte，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+<div class="card pcard"><img class="top" src="ph_spot_blue.jpg" alt="藍色四足機器人側面，背上有感測器酬載"><div class="pb"><h3>ST Engineering 航太廠</h3><p>四足機器人自主巡檢關鍵設備，並用搭載的 3D 掃描器產生點雲，建立廠區的 3D 模型。</p><a class="src" href="https://bostondynamics.com/case-studies/spot-at-st-engineering-mras/" target="_blank" rel="noopener">來源：原廠案例頁</a><p class="credit">同型機器人，非該廠現場。圖：<a href="https://commons.wikimedia.org/wiki/File:Boston_Dynamics_LKAB_Almedalen_29_juni_2023.jpg" target="_blank" rel="noopener">Tore Danielsson (WMSE)，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
 </div>
 <p class="foot">應用與產業</p>
 </section>
 
 <section class="slide content">
 <div class="h2row">
-<h2>國外大廠應用實例：能源、農機、倉儲</h2>
+<h2>已導入的大廠實例：倉儲與農機</h2>
 <p class="note">公開資料中的他人案例，非 PMG3D 實績</p>
 </div>
+<div class="grid2">
+<div class="card pcard pcard-mid"><img src="ph_amazon_robot.jpg" alt="橘色扁平的倉儲搬運機器人"><div class="pb"><h3>Amazon 倉儲機器人</h3><p>2022 年發表首款完全自主的移動機器人；2026 年的報導指出已在美國 24 座物流中心使用。</p><a class="src" href="https://www.therobotreport.com/proteus-gets-natural-language-ability-amazon-expands-europe-robot-deployments/" target="_blank" rel="noopener">來源：The Robot Report 報導</a><p class="credit">較早期的搬運機型。圖：<a href="https://commons.wikimedia.org/wiki/File:Amazon_warehouse_robot_2020.JPG" target="_blank" rel="noopener">Geni，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+<div class="card pcard pcard-mid"><img src="ph_deere_8r.jpg" alt="綠色的大型農用曳引機"><div class="pb"><h3>John Deere 無人曳引機</h3><p>2022 年發表 8R 無人曳引機，以六組雙目相機做 360 度障礙偵測與測距；原廠表示當年起交付農民。</p><a class="src" href="https://www.dtnpf.com/agriculture/web/ag/equipment/article/2022/01/05/deere-brings-autonomy-field-year" target="_blank" rel="noopener">來源：DTN 報導</a><p class="credit">同系列 8R 曳引機，非無人版。圖：<a href="https://commons.wikimedia.org/wiki/File:John_Deere_8R_410_agra_2022_(DSC05574).jpg" target="_blank" rel="noopener">MarcelX42，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+</div>
+<p class="foot">應用與產業</p>
+</section>
+
+<section class="slide content">
+<div class="h2row">
+<h2>尚未落地的大廠方案</h2>
+<p class="note">依各來源發布當時的狀態</p>
+</div>
 <div class="grid3">
-<div class="card pcard"><img class="top" src="ph_spot_blue.jpg" alt="藍色四足機器人側面，背上有感測器酬載"><div class="pb"><h3>bp 煉油廠與海上設施</h3><p>先在煉油廠試用，再把四足機器人派到海上設施做例行巡檢，並評估加裝光達來建立 3D 模型。</p><a class="src" href="https://bostondynamics.com/case-studies/bp/" target="_blank" rel="noopener">來源：原廠案例頁</a><p class="credit">同型機器人，非該公司現場。圖：<a href="https://commons.wikimedia.org/wiki/File:Boston_Dynamics_LKAB_Almedalen_29_juni_2023.jpg" target="_blank" rel="noopener">Tore Danielsson (WMSE)，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
-<div class="card pcard"><img src="ph_deere_8r.jpg" alt="綠色的大型農用曳引機"><div class="pb"><h3>John Deere 無人曳引機</h3><p>2022 年發表的 8R 無人曳引機，以六組雙目相機做 360 度障礙偵測與測距，並持續比對作業範圍。</p><a class="src" href="https://www.dtnpf.com/agriculture/web/ag/equipment/article/2022/01/05/deere-brings-autonomy-field-year" target="_blank" rel="noopener">來源：DTN 報導</a><p class="credit">同系列 8R 曳引機，非無人版。圖：<a href="https://commons.wikimedia.org/wiki/File:John_Deere_8R_410_agra_2022_(DSC05574).jpg" target="_blank" rel="noopener">MarcelX42，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
-<div class="card pcard"><img src="ph_amazon_robot.jpg" alt="橘色扁平的倉儲搬運機器人"><div class="pb"><h3>Amazon 倉儲機器人</h3><p>2022 年發表首款完全自主的移動機器人，可在人員周圍自由移動，規劃用於出貨區搬運推車。</p><a class="src" href="https://www.therobotreport.com/a-decade-after-acquiring-kiva-amazon-unveils-its-first-amr/" target="_blank" rel="noopener">來源：The Robot Report 報導</a><p class="credit">較早期的搬運機型。圖：<a href="https://commons.wikimedia.org/wiki/File:Amazon_warehouse_robot_2020.JPG" target="_blank" rel="noopener">Geni，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+<div class="card pcard"><img src="ph_anymal_grid.jpg" alt="紅色四足機器人走在變電站的步道上"><div class="pb"><h3>BASF：用 3D 模型預演巡檢</h3><p>2021 年概念驗證：先用廠區的 3D 模型規劃並模擬任務，機器人到現場再依模型定位；之後仍在評估。</p><a class="src" href="https://www.anybotics.com/anymal-case-basf-chemical-plant/" target="_blank" rel="noopener">來源：原廠案例頁</a><p class="credit">同系列機器人，攝於變電站。圖：<a href="https://commons.wikimedia.org/wiki/File:Anymal-robot-inspection-power-grid.jpg" target="_blank" rel="noopener">Cvoellmy，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+<div class="card pcard"><img src="ph_spot_stage.jpg" alt="黃色四足機器人走在昏暗的通道上"><div class="pb"><h3>bp：巡檢順便建 3D 模型</h3><p>四足機器人已派到海上設施試行巡檢；加裝光達建立 3D 模型與數位分身這一步，還在探索階段。</p><a class="src" href="https://bostondynamics.com/case-studies/bp/" target="_blank" rel="noopener">來源：原廠案例頁</a><p class="credit">同型機器人，非該公司現場。圖：<a href="https://commons.wikimedia.org/wiki/File:SpotMini,_Boston_Dynamics,_Robot.jpg" target="_blank" rel="noopener">Web Summit，CC BY 2.0</a>，維基共享資源，裁切顯示</p></div></div>
+<div class="card pcard"><img class="top" src="ph_humanoid.jpg" alt="銀灰色人形機器人的頭部與上半身"><div class="pb"><h3>BMW：人形機器人進產線</h3><p>2024 年在美國工廠試用數週，把鈑金件放進治具；BMW 表示目前廠內沒有該機器人，也沒有導入時程。</p><a class="src" href="https://newsroom.bmwgroup.com/global/successful-test-of-humanoid-robots-at-bmw-group-plant-spartanburg" target="_blank" rel="noopener">來源：BMW 新聞稿</a><p class="credit">人形機器人示意，非 BMW 試用的機型。圖：<a href="https://commons.wikimedia.org/wiki/File:Unitree_G1.jpg" target="_blank" rel="noopener">Sayanesy，CC0</a>，維基共享資源，裁切顯示</p></div></div>
 </div>
 <p class="foot">應用與產業</p>
 </section>
