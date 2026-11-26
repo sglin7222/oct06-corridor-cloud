@@ -163,6 +163,27 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 .note a { color: #1F6F5A; }
 .note a:focus-visible { outline: 4px solid #D9772B; outline-offset: 4px; }
 .row4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.ic-head { display: flex; gap: 16px; align-items: center; }
+.ic-head svg { flex: none; }
+.ic-tx { display: flex; flex-direction: column; gap: 12px; }
+.card-fig { flex-direction: row; gap: 24px; align-items: center; }
+.card-fig .tx { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.card-fig svg { flex: none; }
+.shot-big img { height: 418px; }
+.shot-top img { object-position: 50% 0; }
+.col-fig .note { max-width: 760px; }
+.pcard .top { object-position: 50% 0; }
+.agenda .card { padding: 40px; gap: 16px; }
+.agenda .big { font-size: 64px; font-weight: 700; line-height: 1; color: #1F6F5A; }
+.fig .near { fill: #1F6F5A; }
+.pcard { padding: 0; overflow: hidden; gap: 0; }
+.pcard img { display: block; width: 100%; height: 240px; object-fit: cover; background: #E6ECE7; }
+.pcard .pb { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 24px 28px; }
+.pcard-tall img { height: 380px; }
+.credit { font-size: 20px; line-height: 1.5; color: #5D6B64; }
+.credit a { color: #5D6B64; }
+.credit a:focus-visible { outline: 4px solid #D9772B; outline-offset: 4px; }
+.fig .far { fill: #A8500F; }
 .fn-head { display: flex; gap: 16px; align-items: baseline; }
 .fn-key {
   font-size: 36px;
@@ -262,7 +283,6 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <body>
 <main id="deck">
 
-<!-- 1 封面 -->
 <section class="slide dark cover">
 <svg class="art" width="752" height="824" viewBox="0 0 752 824" role="img" aria-label="示意圖：移動路徑上的各個位置，以虛線連到周圍觀測到的地圖點">
 <g stroke="#3A5A4F" stroke-width="2" stroke-dasharray="8 8" fill="none">
@@ -286,7 +306,19 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 </div>
 </section>
 
-<!-- 2 定義 -->
+<section class="slide content agenda">
+<h2>大綱</h2>
+<div class="spacer"></div>
+<div class="row4">
+<div class="card"><p class="big">01</p><h3>原理</h3><p>SLAM 是什麼、分成哪幾步、誤差怎麼收斂</p></div>
+<div class="card"><p class="big">02</p><h3>感測器</h3><p>雙目相機與 8 線光達各自的原理與互補</p></div>
+<div class="card"><p class="big">03</p><h3>應用與產業</h3><p>機器人、無人車的應用與國外大廠實例</p></div>
+<div class="card"><p class="big">04</p><h3>PMG3D</h3><p>作業流程、實測成果與應用場域</p></div>
+</div>
+<div class="spacer"></div>
+<p class="foot">大綱</p>
+</section>
+
 <section class="slide content">
 <h2>SLAM 的定義</h2>
 <p class="lede">在沒有地圖的環境裡，一邊估計自己的位置姿態，一邊把周圍環境建成地圖。</p>
@@ -303,7 +335,6 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">原理</p>
 </section>
 
-<!-- 3 四個環節 -->
 <section class="slide content">
 <h2>SLAM 的四個環節</h2>
 <p class="lede">不論用哪一種感測器，SLAM 系統大致都分成這四步。</p>
@@ -324,7 +355,6 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">原理</p>
 </section>
 
-<!-- 4 漂移與回環 -->
 <section class="slide content">
 <h2>誤差累積與回環校正</h2>
 <div class="cols cols-mid">
@@ -354,47 +384,47 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">原理</p>
 </section>
 
-<!-- SLAM 的應用 -->
 <section class="slide content">
-<h2>SLAM 的應用</h2>
-<div class="grid3">
-<div class="card"><p class="step">常用：單線光達、相機</p><h3>移動機器人</h3><p>倉儲搬運、清掃、送餐，在室內自己定位並規劃路徑。</p></div>
-<div class="card"><p class="step">常用：多線光達＋相機</p><h3>巡檢機器人</h3><p>沿廠區、隧道、管道巡視，把異常標在地圖上的位置。</p></div>
-<div class="card"><p class="step">常用：多線光達＋相機</p><h3>無人車</h3><p>園區接駁、物流配送到道路自動駕駛，與預先建好的地圖比對定位。</p></div>
-<div class="card"><p class="step">常用：相機＋慣性感測器</p><h3>無人機</h3><p>室內、橋下等收不到衛星訊號的地方，靠它懸停與避障。</p></div>
-<div class="card"><p class="step">常用：相機＋慣性感測器</p><h3>擴增與虛擬實境</h3><p>追蹤頭戴裝置的位置姿態，把虛擬物件固定在真實空間。</p></div>
-<div class="card"><p class="step tested">常用：光達或雙目相機</p><h3>測繪與 3D 建模</h3><p>手持、推車或背負式掃描，把現場變成點雲與模型。</p></div>
+<h2>雙目相機的測距原理</h2>
+<div class="cols cols-mid">
+<div class="col-fig">
+<svg class="fig" width="760" height="520" viewBox="0 0 760 520" role="img" aria-label="俯視圖：左右兩台相機看同一個物體，近的物體兩條視線夾角大，遠的物體夾角小">
+<g stroke="#1F6F5A" stroke-width="2.5"><line x1="120" y1="170" x2="420" y2="270"/><line x1="120" y1="370" x2="420" y2="270"/></g>
+<g stroke="#D9772B" stroke-width="2.5"><line x1="120" y1="170" x2="700" y2="270"/><line x1="120" y1="370" x2="700" y2="270"/></g>
+<line x1="50" y1="170" x2="50" y2="370" stroke="#15201C" stroke-width="2"/>
+<line x1="40" y1="170" x2="60" y2="170" stroke="#15201C" stroke-width="2"/><line x1="40" y1="370" x2="60" y2="370" stroke="#15201C" stroke-width="2"/>
+<rect x="70" y="145" width="50" height="50" rx="8" fill="#15201C"/><rect x="70" y="345" width="50" height="50" rx="8" fill="#15201C"/>
+<circle cx="420" cy="270" r="10" fill="#1F6F5A"/><circle cx="700" cy="270" r="10" fill="#D9772B"/>
+<text x="66" y="278">基線</text>
+<text x="70" y="130">左相機</text>
+<text x="70" y="430">右相機</text>
+<text class="near" x="250" y="120">近的物體：兩條視線夾角大</text>
+<text class="far" x="500" y="372">遠的物體：夾角小</text>
+</svg>
+<p class="note" style="margin-top:16px">同一個物體在左右影像的位置差叫視差；距離越遠視差越小，同樣的量測誤差換算成距離就放大。</p>
 </div>
-<div class="spacer"></div>
-<div class="band">
-<h3>PMG3D 的定位</h3>
-<p>屬於「測繪與 3D 建模」：重點不在即時導航，而在帶回一個精確、有貼圖的模型。</p>
+<div class="col">
+<div class="card">
+<h3>優點</h3>
+<ul>
+<li>每張影像都能算出密集的深度</li>
+<li>有顏色與紋理，可直接貼圖</li>
+<li>不發射雷射，設備輕巧</li>
+</ul>
 </div>
-<p class="foot">原理</p>
-</section>
-
-<!-- 5 視覺與光達 -->
-<section class="slide content">
-<h2>視覺 SLAM 與光達 SLAM 的比較</h2>
-<table>
-<thead><tr><th>項目</th><th>雙目相機（視覺）</th><th>多線光達</th></tr></thead>
-<tbody>
-<tr><td>測距方式</td><td>左右影像的視差換算距離</td><td>雷射飛行時間直接測距</td></tr>
-<tr><td>距離誤差</td><td>隨距離平方增加，近處最準</td><td>遠近大致相同</td></tr>
-<tr><td>顏色與紋理</td><td>有，可直接貼圖</td><td>無，只有反射強度</td></tr>
-<tr><td>光線條件</td><td>需要照明與表面紋理</td><td>全黑也能運作</td></tr>
-<tr><td>資料密度</td><td>每張影像都是密集深度</td><td>依線數而定，線數少則稀疏</td></tr>
-<tr><td>常見弱點</td><td>白牆、反光、玻璃</td><td>長直走廊形狀重複、玻璃</td></tr>
-</tbody>
-</table>
-<div class="spacer"></div>
-<div class="band">
-<p>沒有哪一種感測器全贏：選擇取決於現場的光線、距離，以及成果是否需要顏色。</p>
+<div class="card">
+<h3>限制</h3>
+<ul>
+<li>距離誤差隨距離平方增加</li>
+<li>需要照明與表面紋理</li>
+<li>白牆、反光、玻璃量不到距離</li>
+</ul>
+</div>
+</div>
 </div>
 <p class="foot">感測器</p>
 </section>
 
-<!-- 6 8 線光達 -->
 <section class="slide content">
 <h2>8 線光達的特性</h2>
 <div class="cols cols-mid">
@@ -440,7 +470,26 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">感測器</p>
 </section>
 
-<!-- 7 8 線光達 SLAM -->
+<section class="slide content">
+<h2>視覺 SLAM 與光達 SLAM 的比較</h2>
+<table>
+<thead><tr><th>項目</th><th>雙目相機（視覺）</th><th>多線光達</th></tr></thead>
+<tbody>
+<tr><td>測距方式</td><td>左右影像的視差換算距離</td><td>雷射飛行時間直接測距</td></tr>
+<tr><td>距離誤差</td><td>隨距離平方增加，近處最準</td><td>遠近大致相同</td></tr>
+<tr><td>顏色與紋理</td><td>有，可直接貼圖</td><td>無，只有反射強度</td></tr>
+<tr><td>光線條件</td><td>需要照明與表面紋理</td><td>全黑也能運作</td></tr>
+<tr><td>資料密度</td><td>每張影像都是密集深度</td><td>依線數而定，線數少則稀疏</td></tr>
+<tr><td>常見弱點</td><td>白牆、反光、玻璃</td><td>長直走廊形狀重複、玻璃</td></tr>
+</tbody>
+</table>
+<div class="spacer"></div>
+<div class="band">
+<p>沒有哪一種感測器全贏：選擇取決於現場的光線、距離，以及成果是否需要顏色。</p>
+</div>
+<p class="foot">感測器</p>
+</section>
+
 <section class="slide content">
 <h2>8 線光達 SLAM 的流程</h2>
 <div class="flow">
@@ -463,7 +512,6 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">感測器</p>
 </section>
 
-<!-- 8 互補 -->
 <section class="slide content">
 <h2>光達與相機的互補</h2>
 <p class="lede">兩種感測器的弱點剛好錯開，所以常見的做法是一起用。</p>
@@ -495,7 +543,98 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">感測器</p>
 </section>
 
-<!-- 9 產品開場 -->
+<section class="slide content">
+<h2>SLAM 的應用</h2>
+<div class="grid3">
+<div class="card"><div class="ic-head"><svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="18" width="40" height="20" rx="6"/><rect x="22" y="9" width="12" height="9" rx="2"/><circle cx="18" cy="44" r="5"/><circle cx="38" cy="44" r="5"/></svg><div class="ic-tx"><p class="step">常用：單線光達、相機</p><h3>移動機器人</h3></div></div><p>倉儲搬運、清掃、送餐，在室內自己定位並規劃路徑。</p></div>
+<div class="card"><div class="ic-head"><svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="20" width="34" height="12" rx="4"/><rect x="40" y="11" width="11" height="9" rx="2"/><path d="M13 32L10 47M21 32L23 47M31 32L29 47M38 32L41 47"/></svg><div class="ic-tx"><p class="step">常用：多線光達＋相機</p><h3>巡檢機器人</h3></div></div><p>沿廠區、隧道、管道巡視，把異常標在地圖上的位置。</p></div>
+<div class="card"><div class="ic-head"><svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="26" width="44" height="14" rx="4"/><path d="M14 26L20 14H36L42 26"/><circle cx="18" cy="43" r="5"/><circle cx="38" cy="43" r="5"/></svg><div class="ic-tx"><p class="step">常用：多線光達＋相機</p><h3>無人車</h3></div></div><p>園區接駁、物流配送到道路自動駕駛，與預先建好的地圖比對定位。</p></div>
+<div class="card"><div class="ic-head"><svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="22" y="23" width="12" height="10" rx="2"/><path d="M22 24L12 16M34 24L44 16M22 32L12 40M34 32L44 40"/><ellipse cx="12" cy="15" rx="8" ry="2.5"/><ellipse cx="44" cy="15" rx="8" ry="2.5"/><ellipse cx="12" cy="41" rx="8" ry="2.5"/><ellipse cx="44" cy="41" rx="8" ry="2.5"/></svg><div class="ic-tx"><p class="step">常用：相機＋慣性感測器</p><h3>無人機</h3></div></div><p>室內、橋下等收不到衛星訊號的地方，靠它懸停與避障。</p></div>
+<div class="card"><div class="ic-head"><svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="19" width="42" height="20" rx="8"/><circle cx="20" cy="29" r="5"/><circle cx="36" cy="29" r="5"/><path d="M7 26L3 22M49 26L53 22"/></svg><div class="ic-tx"><p class="step">常用：相機＋慣性感測器</p><h3>擴增與虛擬實境</h3></div></div><p>追蹤頭戴裝置的位置姿態，把虛擬物件固定在真實空間。</p></div>
+<div class="card"><div class="ic-head"><svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="#1F6F5A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M28 8L46 18L28 28L10 18Z"/><path d="M10 18V38L28 48V28"/><path d="M46 18V38L28 48"/></svg><div class="ic-tx"><p class="step tested">常用：光達或雙目相機</p><h3>測繪與 3D 建模</h3></div></div><p>手持、推車或背負式掃描，把現場變成點雲與模型。</p></div>
+</div>
+<div class="spacer"></div>
+<div class="band">
+<h3>PMG3D 的定位</h3>
+<p>屬於「測繪與 3D 建模」：重點不在即時導航，而在帶回一個精確、有貼圖的模型。</p>
+</div>
+<p class="foot">應用與產業</p>
+</section>
+
+<section class="slide content">
+<h2>機器人巡檢實景</h2>
+<div class="grid3">
+<div class="card pcard pcard-tall"><img src="ph_anymal_grid.jpg" alt="紅色四足機器人走在變電站的步道上"><div class="pb"><p>變電站：四足機器人每天做目視、熱像與聲音巡檢。</p><p class="credit">圖：<a href="https://commons.wikimedia.org/wiki/File:Anymal-robot-inspection-power-grid.jpg" target="_blank" rel="noopener">Cvoellmy，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+<div class="card pcard pcard-tall"><img src="ph_anymal_offshore.jpg" alt="四足機器人在海上平台的黃色樓梯往下走"><div class="pb"><p>海上平台：巡檢途中自己走下樓梯。</p><p class="credit">圖：<a href="https://commons.wikimedia.org/wiki/File:AnymalX-robot-inspection-offshore.jpg" target="_blank" rel="noopener">Cvoellmy，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+<div class="card pcard pcard-tall"><img src="ph_unitree_go2.jpg" alt="灰色四足機器人站在雪地上"><div class="pb"><p>雪地：宇樹 Go2，羅馬尼亞山難救援隊使用。</p><p class="credit">圖：<a href="https://commons.wikimedia.org/wiki/File:Unitree_Go2_of_Salvamont_front_view.jpg" target="_blank" rel="noopener">HotNews Romania - Adi Iacob, Ovidiu Popica，CC BY 3.0</a>，維基共享資源，裁切顯示</p></div></div>
+</div>
+<p class="foot">應用與產業</p>
+</section>
+
+<section class="slide content">
+<div class="h2row">
+<h2>國外大廠應用實例：工廠巡檢</h2>
+<p class="note">公開資料中的他人案例，非 PMG3D 實績</p>
+</div>
+<div class="grid3">
+<div class="card pcard"><img class="top" src="ph_spot_lidar.jpg" alt="藍色四足機器人，背上裝著 3D 光達"><div class="pb"><h3>BMW 英國工廠</h3><p>先建好全廠的數位分身，2023 年起四足機器人每天巡檢六趟，把熱像與 3D 掃描回填到模型。</p><a class="src" href="https://bostondynamics.com/case-studies/spot-inspires-innovation-at-bmw-group-plant/" target="_blank" rel="noopener">來源：原廠案例頁</a><p class="credit">同型機器人，非該廠現場。圖：<a href="https://commons.wikimedia.org/wiki/File:Boston_Dynamics_LKAB_2_Almedalen_29_juni_2023.jpg" target="_blank" rel="noopener">Tore Danielsson (WMSE)，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+<div class="card pcard"><img src="ph_anymal_grid.jpg" alt="紅色四足機器人走在變電站的步道上"><div class="pb"><h3>BASF 德國化工廠</h3><p>2021 年測試：先用廠區的 3D 模型規劃並模擬巡檢任務，四足機器人到現場再依這份模型定位。</p><a class="src" href="https://www.anybotics.com/anymal-case-basf-chemical-plant/" target="_blank" rel="noopener">來源：原廠案例頁</a><p class="credit">同系列機器人，攝於變電站。圖：<a href="https://commons.wikimedia.org/wiki/File:Anymal-robot-inspection-power-grid.jpg" target="_blank" rel="noopener">Cvoellmy，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+<div class="card pcard"><img src="ph_spot_yellow.jpg" alt="黃色四足機器人站在林間小路上"><div class="pb"><h3>百威英博比利時酒廠</h3><p>2022 年試用、2023 年導入，四足機器人自主巡檢熱像與聲音；原廠稱半年找出近 150 處異常。</p><a class="src" href="https://bostondynamics.com/case-studies/energy-savings-predictive-maintenance-at-ab-inbevs-largest-european-brewery/" target="_blank" rel="noopener">來源：原廠案例頁</a><p class="credit">同型機器人，非該廠現場。圖：<a href="https://commons.wikimedia.org/wiki/File:Spot_by_Boston_Dynamics.jpg" target="_blank" rel="noopener">Jonte，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+</div>
+<p class="foot">應用與產業</p>
+</section>
+
+<section class="slide content">
+<div class="h2row">
+<h2>國外大廠應用實例：能源、農機、倉儲</h2>
+<p class="note">公開資料中的他人案例，非 PMG3D 實績</p>
+</div>
+<div class="grid3">
+<div class="card pcard"><img class="top" src="ph_spot_blue.jpg" alt="藍色四足機器人側面，背上有感測器酬載"><div class="pb"><h3>bp 煉油廠與海上設施</h3><p>先在煉油廠試用，再把四足機器人派到海上設施做例行巡檢，並評估加裝光達來建立 3D 模型。</p><a class="src" href="https://bostondynamics.com/case-studies/bp/" target="_blank" rel="noopener">來源：原廠案例頁</a><p class="credit">同型機器人，非該公司現場。圖：<a href="https://commons.wikimedia.org/wiki/File:Boston_Dynamics_LKAB_Almedalen_29_juni_2023.jpg" target="_blank" rel="noopener">Tore Danielsson (WMSE)，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+<div class="card pcard"><img src="ph_deere_8r.jpg" alt="綠色的大型農用曳引機"><div class="pb"><h3>John Deere 無人曳引機</h3><p>2022 年發表的 8R 無人曳引機，以六組雙目相機做 360 度障礙偵測與測距，並持續比對作業範圍。</p><a class="src" href="https://www.dtnpf.com/agriculture/web/ag/equipment/article/2022/01/05/deere-brings-autonomy-field-year" target="_blank" rel="noopener">來源：DTN 報導</a><p class="credit">同系列 8R 曳引機，非無人版。圖：<a href="https://commons.wikimedia.org/wiki/File:John_Deere_8R_410_agra_2022_(DSC05574).jpg" target="_blank" rel="noopener">MarcelX42，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+<div class="card pcard"><img src="ph_amazon_robot.jpg" alt="橘色扁平的倉儲搬運機器人"><div class="pb"><h3>Amazon 倉儲機器人</h3><p>2022 年發表首款完全自主的移動機器人，可在人員周圍自由移動，規劃用於出貨區搬運推車。</p><a class="src" href="https://www.therobotreport.com/a-decade-after-acquiring-kiva-amazon-unveils-its-first-amr/" target="_blank" rel="noopener">來源：The Robot Report 報導</a><p class="credit">較早期的搬運機型。圖：<a href="https://commons.wikimedia.org/wiki/File:Amazon_warehouse_robot_2020.JPG" target="_blank" rel="noopener">Geni，CC BY-SA 4.0</a>，維基共享資源，裁切顯示</p></div></div>
+</div>
+<p class="foot">應用與產業</p>
+</section>
+
+<section class="slide content">
+<div class="h2row">
+<h2>機器人大廠投入的 SLAM 技術</h2>
+<p class="note">以宇樹科技為例，整理自<a href="https://www.wondercv.com/xiaozhao/unitree-2026-spring-hangzhou-8889-f44269/" target="_blank" rel="noopener">公開職缺內容</a></p>
+</div>
+<div class="grid2">
+<div class="card card-fig"><div class="tx"><h3>多感測器融合定位</h3><p>光達、相機、慣性感測器、衛星定位各有失效的時候，融合後互相補位；前提是先做好標定。</p></div><svg width="220" height="130" viewBox="0 0 220 130" role="img" aria-label="四種感測器的資料匯合成一個位置姿態" fill="none" stroke-linecap="round" stroke-linejoin="round"><g stroke="#9AA8A1" stroke-width="2.5"><path d="M24 18L120 65M24 49L120 65M24 81L120 65M24 112L120 65"/></g><g fill="#FCFDFB" stroke="#1F6F5A" stroke-width="3"><circle cx="24" cy="18" r="10"/><circle cx="24" cy="49" r="10"/><circle cx="24" cy="81" r="10"/><circle cx="24" cy="112" r="10"/></g><circle cx="120" cy="65" r="18" fill="#1F6F5A"/><path d="M144 65H196M184 55l12 10-12 10" stroke="#D9772B" stroke-width="4"/></svg></div>
+<div class="card card-fig"><div class="tx"><h3>高程圖與地形重建</h3><p>把周圍地面記成一格一格的高度，腿式機器人才知道哪裡能踩、台階有多高。</p></div><svg width="220" height="130" viewBox="0 0 220 130" role="img" aria-label="地面被記成一格一格不同高度的柱子" fill="none" stroke-linecap="round" stroke-linejoin="round"><g fill="#CFE0D8" stroke="#1F6F5A" stroke-width="2.5"><rect x="10" y="96" width="24" height="22"/><rect x="35" y="96" width="24" height="22"/><rect x="60" y="74" width="24" height="44"/><rect x="85" y="74" width="24" height="44"/><rect x="110" y="46" width="24" height="72"/><rect x="135" y="46" width="24" height="72"/><rect x="160" y="68" width="24" height="50"/><rect x="185" y="90" width="24" height="28"/></g><path d="M6 118H214" stroke="#15201C" stroke-width="3"/><circle cx="72" cy="62" r="8" fill="#D9772B"/></svg></div>
+<div class="card card-fig"><div class="tx"><h3>全域與區域路徑規劃</h3><p>全域規劃找出到目的地的路線；區域規劃依眼前的障礙即時修正。</p></div><svg width="220" height="130" viewBox="0 0 220 130" role="img" aria-label="虛線是原定路線，實線繞過中間的障礙物" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M22 65H198" stroke="#9AA8A1" stroke-width="3" stroke-dasharray="8 8"/><rect x="92" y="42" width="36" height="46" rx="4" fill="#15201C"/><path d="M22 65C60 65 62 22 110 22C158 22 160 65 198 65" stroke="#1F6F5A" stroke-width="4"/><circle cx="22" cy="65" r="9" fill="#1F6F5A"/><rect x="189" y="56" width="18" height="18" fill="#D9772B"/></svg></div>
+<div class="card card-fig"><div class="tx"><h3>自主導航與巡檢</h3><p>把定位、地圖、規劃串起來，讓機器人沿既定路線自己走完並回報。</p></div><svg width="220" height="130" viewBox="0 0 220 130" role="img" aria-label="一圈巡檢路線，上面有四個檢查點" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="20" y="18" width="180" height="94" rx="22" stroke="#1F6F5A" stroke-width="4"/><g fill="#FCFDFB" stroke="#1F6F5A" stroke-width="3"><circle cx="60" cy="18" r="8"/><circle cx="200" cy="65" r="8"/><circle cx="150" cy="112" r="8"/><circle cx="20" cy="65" r="8"/></g><circle cx="118" cy="18" r="10" fill="#D9772B"/><path d="M134 18H150M143 11l8 7-8 7" stroke="#D9772B" stroke-width="3"/></svg></div>
+</div>
+<div class="spacer"></div>
+<div class="band">
+<h3>共通方法</h3>
+<p>特徵擷取與比對、濾波估計、回環偵測、圖最佳化，對應前面講的前端、後端與回環。</p>
+</div>
+<p class="foot">應用與產業</p>
+</section>
+
+<section class="slide content">
+<h2>即時導航與離線建模的對照</h2>
+<table>
+<thead><tr><th>項目</th><th>機器人即時導航</th><th>離線精細建模（PMG3D）</th></tr></thead>
+<tbody>
+<tr><td>目的</td><td>讓機器人邊走邊知道自己在哪裡</td><td>帶回精確、有貼圖的 3D 模型</td></tr>
+<tr><td>運算時機</td><td>即時，在機器人上運算</td><td>錄影後離線運算，約 10 分鐘到 1 小時</td></tr>
+<tr><td>主要感測器</td><td>光達為主，融合相機與慣性感測器</td><td>雙目相機</td></tr>
+<tr><td>地圖形式</td><td>高程圖、導航用的地圖</td><td>彩色點雲、貼圖網格</td></tr>
+<tr><td>重點</td><td>即時性與穩定性</td><td>精度與外觀，重疊誤差約 1 cm</td></tr>
+</tbody>
+</table>
+<div class="spacer"></div>
+<div class="band band-dk">
+<p>兩者互補：先用離線建模建好場域的 3D 圖，機器人的即時導航在這份圖上進行。</p>
+</div>
+<p class="foot">應用與產業</p>
+</section>
+
 <section class="slide accent">
 <p class="eyebrow">產品</p>
 <h1>PMG3D</h1>
@@ -503,7 +642,6 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="sub">雙目相機＋嵌入式運算主機，錄影與重建在同一台機器完成。</p>
 </section>
 
-<!-- 10 作業流程 -->
 <section class="slide content">
 <h2>PMG3D 的作業流程</h2>
 <p class="lede">現場只管錄影，耗時的最佳化留到離線做。</p>
@@ -524,7 +662,6 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">PMG3D</p>
 </section>
 
-<!-- 11 六個功能 -->
 <section class="slide content">
 <h2>六個功能</h2>
 <div class="grid3">
@@ -543,7 +680,6 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">PMG3D</p>
 </section>
 
-<!-- 12 實測成果 -->
 <section class="slide content">
 <div class="h2row">
 <h2>走廊實測成果</h2>
@@ -562,7 +698,19 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">PMG3D</p>
 </section>
 
-<!-- 13 應用場域 -->
+<section class="slide content">
+<h2>貼圖細節</h2>
+<div class="row">
+<div class="shot shot-big"><img src="tex_corridor.jpg" alt="貼圖網格：從走廊起點往內看，地板、牆面磁磚與天花板"><p class="note">從走廊起點往內看</p></div>
+<div class="shot shot-big shot-top"><img src="tex_hydrant.jpg" alt="貼圖網格：側看牆面，紅色消防栓箱與白色磁磚"><p class="note">側看牆面：消防栓箱與磁磚縫</p></div>
+</div>
+<div class="spacer"></div>
+<div class="band">
+<p>貼圖直接取自原始照片，牆面、磁磚縫與消防栓箱的顏色和位置都來自現場影像；紫色是沒有量到深度的區域。</p>
+</div>
+<p class="foot">PMG3D</p>
+</section>
+
 <section class="slide content">
 <h2>PMG3D 的應用場域</h2>
 <div class="grid2">
@@ -579,7 +727,6 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">PMG3D</p>
 </section>
 
-<!-- 應用於巡檢機器人 -->
 <section class="slide content">
 <h2>應用於巡檢機器人</h2>
 <p class="lede">場域已經有 3D 圖，巡檢機器人就有現成的地圖可用。</p>
@@ -600,65 +747,6 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">PMG3D</p>
 </section>
 
-<!-- 國外大廠應用實例 -->
-<section class="slide content">
-<div class="h2row">
-<h2>國外大廠應用實例</h2>
-<p class="note">公開資料中的他人案例，非 PMG3D 實績</p>
-</div>
-<div class="grid3">
-<div class="card"><h3>BMW 英國工廠</h3><p>先建好全廠的數位分身，2023 年起四足機器人每天巡檢六趟，把熱像與 3D 掃描回填到模型。</p><a class="src" href="https://bostondynamics.com/case-studies/spot-inspires-innovation-at-bmw-group-plant/" target="_blank" rel="noopener">來源：原廠案例頁</a></div>
-<div class="card"><h3>BASF 德國化工廠</h3><p>2021 年測試：先用廠區的 3D 模型規劃並模擬巡檢任務，四足機器人到現場再依這份模型定位。</p><a class="src" href="https://www.anybotics.com/anymal-case-basf-chemical-plant/" target="_blank" rel="noopener">來源：原廠案例頁</a></div>
-<div class="card"><h3>百威英博比利時酒廠</h3><p>2022 年試用、2023 年導入，四足機器人自主巡檢熱像與聲音；原廠稱半年找出近 150 處異常。</p><a class="src" href="https://bostondynamics.com/case-studies/energy-savings-predictive-maintenance-at-ab-inbevs-largest-european-brewery/" target="_blank" rel="noopener">來源：原廠案例頁</a></div>
-<div class="card"><h3>bp 煉油廠與海上設施</h3><p>先在煉油廠試用，再把四足機器人派到海上設施做例行巡檢，並評估加裝光達來建立 3D 模型。</p><a class="src" href="https://bostondynamics.com/case-studies/bp/" target="_blank" rel="noopener">來源：原廠案例頁</a></div>
-<div class="card"><h3>John Deere 無人曳引機</h3><p>2022 年發表的 8R 無人曳引機，以六組雙目相機做 360 度障礙偵測與測距，並持續比對作業範圍。</p><a class="src" href="https://www.dtnpf.com/agriculture/web/ag/equipment/article/2022/01/05/deere-brings-autonomy-field-year" target="_blank" rel="noopener">來源：DTN 報導</a></div>
-<div class="card"><h3>Amazon 倉儲機器人</h3><p>2022 年發表首款完全自主的移動機器人，可在人員周圍自由移動，規劃用於出貨區搬運推車。</p><a class="src" href="https://www.therobotreport.com/a-decade-after-acquiring-kiva-amazon-unveils-its-first-amr/" target="_blank" rel="noopener">來源：The Robot Report 報導</a></div>
-</div>
-<p class="foot">應用實例</p>
-</section>
-
-<!-- 機器人大廠投入的 SLAM 技術 -->
-<section class="slide content">
-<div class="h2row">
-<h2>機器人大廠投入的 SLAM 技術</h2>
-<p class="note">以宇樹科技（四足與人形機器人）為例</p>
-</div>
-<div class="grid2">
-<div class="card"><h3>多感測器融合定位</h3><p>光達、相機、慣性感測器、衛星定位各有失效的時候，融合後互相補位；前提是先做好標定。</p></div>
-<div class="card"><h3>高程圖與地形重建</h3><p>把周圍地面記成一格一格的高度，腿式機器人才知道哪裡能踩、台階有多高。</p></div>
-<div class="card"><h3>全域與區域路徑規劃</h3><p>全域規劃在地圖上找出到目的地的路線；區域規劃依眼前的障礙即時修正。</p></div>
-<div class="card"><h3>自主導航與巡檢</h3><p>把定位、地圖、規劃串起來，讓機器人沿既定路線自己走完並回報。</p></div>
-</div>
-<div class="band mt">
-<h3>共通方法</h3>
-<p>特徵擷取與比對、濾波估計、回環偵測、圖最佳化，對應前面講的前端、後端與回環。</p>
-</div>
-<div class="spacer"></div>
-<p class="note">技術項目整理自該公司公開的光達 SLAM 職缺內容。來源：<a href="https://www.wondercv.com/xiaozhao/unitree-2026-spring-hangzhou-8889-f44269/" target="_blank" rel="noopener">WonderCV</a></p>
-<p class="foot">機器人技術</p>
-</section>
-
-<!-- 即時導航與離線建模的對照 -->
-<section class="slide content">
-<h2>即時導航與離線建模的對照</h2>
-<table>
-<thead><tr><th>項目</th><th>機器人即時導航</th><th>離線精細建模（PMG3D）</th></tr></thead>
-<tbody>
-<tr><td>目的</td><td>讓機器人邊走邊知道自己在哪裡</td><td>帶回精確、有貼圖的 3D 模型</td></tr>
-<tr><td>運算時機</td><td>即時，在機器人上運算</td><td>錄影後離線運算，約 10 分鐘到 1 小時</td></tr>
-<tr><td>主要感測器</td><td>光達為主，融合相機與慣性感測器</td><td>雙目相機</td></tr>
-<tr><td>地圖形式</td><td>高程圖、導航用的地圖</td><td>彩色點雲、貼圖網格</td></tr>
-<tr><td>重點</td><td>即時性與穩定性</td><td>精度與外觀，重疊誤差約 1 cm</td></tr>
-</tbody>
-</table>
-<div class="spacer"></div>
-<div class="band band-dk">
-<p>兩者互補：先用離線建模建好場域的 3D 圖，機器人的即時導航在這份圖上進行。</p>
-</div>
-<p class="foot">機器人技術</p>
-</section>
-
-<!-- 14 拍攝規範 -->
 <section class="slide content rules">
 <h2>拍攝規範與已知限制</h2>
 <p class="lede">成果好壞主要取決於拍法。</p>
@@ -685,7 +773,6 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">PMG3D</p>
 </section>
 
-<!-- 15 總結 -->
 <section class="slide dark" style="padding:128px">
 <h2>總結</h2>
 <div class="takes">
