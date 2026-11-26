@@ -154,6 +154,8 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 
 /* 功能格 */
 .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+.tested { color: #A8500F; }
 .fn-head { display: flex; gap: 16px; align-items: baseline; }
 .fn-key {
   font-size: 36px;
@@ -534,7 +536,24 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">PMG3D</p>
 </section>
 
-<!-- 13 拍攝規範 -->
+<!-- 13 應用場域 -->
+<section class="slide content">
+<h2>應用場域</h2>
+<div class="grid2">
+<div class="card"><p class="step tested">已實測</p><h3>室內走廊與通道</h3><p>來回 20 m 的走廊，去回程重疊誤差約 1 cm；牆面的標示與文字在貼圖上清楚可辨。</p></div>
+<div class="card"><p class="step">可應用</p><h3>隧道與地下通道</h3><p>建模距離可調到 15 或 20 m，涵蓋較大的斷面；現場需要足夠的照明。</p></div>
+<div class="card"><p class="step">可應用</p><h3>廠房與機房</h3><p>設備、管線與標示的現況紀錄，帶回辦公室再檢視。</p></div>
+<div class="card"><p class="step">可應用</p><h3>建物內部現況紀錄</h3><p>裝修前後、驗收與維護管理用的 3D 現況，點雲與貼圖網格都能輸出。</p></div>
+</div>
+<div class="spacer"></div>
+<div class="band">
+<h3>長距離、無照明</h3>
+<p>長隧道或夜間等影像量測受限的場域，適合搭配 8 線光達（評估中）。</p>
+</div>
+<p class="foot">PMG3D</p>
+</section>
+
+<!-- 14 拍攝規範 -->
 <section class="slide content rules">
 <h2>拍攝規範與已知限制</h2>
 <p class="lede">成果好壞主要取決於拍法。</p>
@@ -561,7 +580,7 @@ th:nth-child(2), th:nth-child(3) { width: 41%; }
 <p class="foot">PMG3D</p>
 </section>
 
-<!-- 14 總結 -->
+<!-- 15 總結 -->
 <section class="slide dark" style="padding:128px">
 <h2>總結</h2>
 <div class="takes">
