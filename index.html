@@ -20,6 +20,13 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);overf
 #c{position:fixed;inset:0;display:block;touch-action:none}
 .card{position:fixed;left:16px;top:calc(16px + env(safe-area-inset-top,0px));width:min(320px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;backdrop-filter:blur(6px);font-size:13px;line-height:1.5}
 .card h1{font-size:15px;margin:0 0 2px;font-weight:600}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.card-head h1{flex:1;min-width:0}
+#card-toggle{flex:none;white-space:nowrap}
+.card.collapsed{width:auto;max-width:calc(100vw - 32px);padding:8px 10px 8px 14px}
+.card.collapsed .card-head{align-items:center}
+.card.collapsed h1{margin:0}
+.card.collapsed #card-body{display:none}
 .card .sub{color:var(--muted);font-size:12px;margin-bottom:10px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}
 .row label{color:var(--muted);font-size:12px;min-width:56px}
@@ -35,8 +42,12 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
 </head>
 <body>
 <canvas id="c"></canvas>
-<div class="card">
-  <h1>Oct06_r001 走廊四種重建</h1>
+<div class="card" id="card">
+  <div class="card-head">
+    <h1>Oct06_r001 走廊四種重建</h1>
+    <button id="card-toggle" aria-expanded="true" aria-controls="card-body">收合 ▴</button>
+  </div>
+  <div id="card-body">
   <div class="sub">海大走廊 · 推車去程 16.7 m、倒車回程 17.0 m（不迴轉）· 同一支 48 秒錄影</div>
   <div class="row"><label>資料</label>
     <button id="ds-cloud" aria-pressed="true">後處理點雲</button>
@@ -53,6 +64,7 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
     <button id="view-start">錄影起點</button>
     <button id="view-top">俯視</button>
     <button id="view-reset">重設視角</button></div>
+  </div>
 </div>
 <div id="status">載入中…</div>
 <div class="hint">拖曳旋轉 · 右鍵/雙指平移 · 滾輪縮放</div>
@@ -60,6 +72,19 @@ input[type=range]{flex:1;min-width:90px;accent-color:var(--accent)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
+// 設定面板收合：記在這台瀏覽器；窄螢幕第一次進來預設收合，免得擋住模型
+(function () {
+  var card = document.getElementById('card'), btn = document.getElementById('card-toggle'), KEY = 'oct06-card-collapsed', saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  function set(collapsed, remember) {
+    card.classList.toggle('collapsed', collapsed);
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    btn.textContent = collapsed ? '設定 ▾' : '收合 ▴';
+    if (remember) { try { localStorage.setItem(KEY, collapsed ? '1' : '0'); } catch (e) {} }
+  }
+  set(saved === null ? window.innerWidth <= 600 : saved === '1', false);
+  btn.addEventListener('click', function () { set(!card.classList.contains('collapsed'), true); });
+})();
 (function () {
   var canvas = document.getElementById('c');
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
